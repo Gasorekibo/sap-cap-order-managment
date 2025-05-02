@@ -1,0 +1,52 @@
+{
+  "name": "order-management-system",
+  "version": "1.0.0",
+  "description": "Order Management System for Moyo Company",
+  "repository": "<Add your repository URL here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^8.9.2",
+    "axios": "^0.21.1",
+    "chai": "^5.2.0",
+    "express": "^4",
+    "hdb": "^0.19.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "@cap-js/cds-typer": ">=0.1",
+    "@cap-js/cds-types": "^0.10.0",
+    "@sap/cds-dk": "^8.9.1",
+    "@types/node": "^22.15.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "start": "cds run --in-memory",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "deploy:local": "cds deploy"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "database": "db/my.db"
+        }
+      },
+      "build": {
+        "target": "dist"
+      },
+      "ts": true
+    }
+  },
+  "log": {
+    "level": "info",
+    "format": "json",
+    "service": true
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
+  }
+}
