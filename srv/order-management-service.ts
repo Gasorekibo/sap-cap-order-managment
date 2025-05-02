@@ -1,14 +1,13 @@
 
 import {Request} from '@sap/cds'
-export default async function (srv:any) {
+export default async function (srv) {
 
-   // Add a very visible log message to confirm the service is loading
    console.log("========================================");
    console.log("ORDER MANAGEMENT SERVICE IS INITIALIZING");
    console.log("========================================");
    
   
-   const { Orders, OrderItems, Products, Customers } = srv.entities;
+   const { Orders, Products, Customers } = srv.entities;
    srv.before("CREATE", Products, async (req:Request) => {
       if (!req.data.name || !req.data.price || !req.data.stockQuantity) {
         req.error(400, "Name, price, and stock quantity are required");

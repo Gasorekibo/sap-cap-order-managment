@@ -32,7 +32,6 @@ entity Orders : cuid, managed {
   totalAmount : Decimal(10,2);
   status      : String(20) default 'New';
   orderDate   : Timestamp default $now;
-  deliveryDate : Timestamp;
   notes       : String(1000);
 }
 
