@@ -122,7 +122,7 @@ describe("Business Validation Tests", () => {
         },
       ];
 
-      // Test each invalid case
+      
       for (const testCase of testCases) {
         try {
           await testInstance.post("/order-mgmt/Customers", testCase.data);
@@ -171,7 +171,7 @@ describe("Business Validation Tests", () => {
     let testCustomer, testProduct1, testProduct2;
 
     beforeAll(async () => {
-      // Create a customer
+      
       const customerResponse = await testInstance.post(
         "/order-mgmt/Customers",
         {
@@ -183,7 +183,7 @@ describe("Business Validation Tests", () => {
       );
       testCustomer = customerResponse.data;
 
-      // Create products
+      
       const product1Response = await testInstance.post("/order-mgmt/Products", {
         name: `Validation Product 1 ${Date.now()}`,
         description: "First validation test product",
@@ -325,11 +325,11 @@ describe("Business Validation Tests", () => {
       const response = await testInstance.post("/order-mgmt/Orders", order);
       expect(response.status).toBe(201);
 
-      // Calculate expected total
+      
       const expectedTotal = testProduct1.price * 2 + testProduct2.price * 3;
       expect(response.data.totalAmount).toBe(expectedTotal);
 
-      // Check if unit prices were set on items
+     
       const orderItems = await testInstance.get(
         `/order-mgmt/Orders(${response.data.ID})/items`
       );
@@ -344,7 +344,7 @@ describe("Business Validation Tests", () => {
       expect(firstItem.unitPrice).toBe(testProduct1.price);
       expect(firstItem.totalPrice).toBe(testProduct1.price * 2);
 
-      // Check second item
+      
       const secondItem = orderItems.data.value.find(
         (item) => item.product_ID === testProduct2.ID
       );
@@ -354,7 +354,7 @@ describe("Business Validation Tests", () => {
     });
 
     it("Should handle complex concurrent stock validation", async () => {
-      // Create a product with limited stock
+      
       const limitedProductResponse = await testInstance.post(
         "/order-mgmt/Products",
         {
@@ -366,7 +366,7 @@ describe("Business Validation Tests", () => {
       );
       const limitedProduct = limitedProductResponse.data;
 
-      // Create order for 6 items
+      
       const order1 = {
         customer_ID: testCustomer.ID,
         items: [
@@ -377,7 +377,7 @@ describe("Business Validation Tests", () => {
         ],
       };
 
-      // Create order for 4 items
+      
       const order2 = {
         customer_ID: testCustomer.ID,
         items: [
@@ -388,21 +388,21 @@ describe("Business Validation Tests", () => {
         ],
       };
 
-      // First order should succeed (6 items)
+   
       const response1 = await testInstance.post("/order-mgmt/Orders", order1);
       expect(response1.status).toBe(201);
 
-      // Second order should succeed (4 items)
+      
       const response2 = await testInstance.post("/order-mgmt/Orders", order2);
       expect(response2.status).toBe(201);
 
-      // Check that stock is now 0
+      
       const updatedProductResponse = await testInstance.get(
         `/order-mgmt/Products(${limitedProduct.ID})`
       );
       expect(updatedProductResponse.data.stockQuantity).toBe(0);
 
-      // Third order should fail (no stock left)
+      
       const order3 = {
         customer_ID: testCustomer.ID,
         items: [
