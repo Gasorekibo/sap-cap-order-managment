@@ -3,9 +3,9 @@ namespace com.moyo.ordermanagement;
 using { Currency, managed, cuid } from '@sap/cds/common';
 
 entity Products : cuid, managed {
-  name        : String(100) not null @mandatory;
+  name        : String(100) not null;
   description : String(1000);
-  price       : Decimal(10,2) not null @mandatory;
+  price       : Decimal(10,2) not null;
   currency    : Currency;
   stockQuantity : Integer not null;
   unit        : String(20);
