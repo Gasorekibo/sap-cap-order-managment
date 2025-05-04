@@ -1,4 +1,5 @@
-
+import cds from '@sap/cds';
+const { SELECT, UPDATE } = cds.ql;
 import {Request} from '@sap/cds'
 export default async function (srv) {
 
@@ -10,15 +11,7 @@ export default async function (srv) {
    const { Orders, Products, Customers } = srv.entities;
    srv.before("CREATE", Products, async (req:Request) => {
       if (!req.data.name || !req.data.price || !req.data.stockQuantity) {
-        req.error(400, "Name, price, and stock quantity are required");
-        return;
-      }
-      if (req.data.price < 0) {
-        req.error(400, "Price cannot be negative");
-        return;
-      }
-      if (req.data.stockQuantity < 0) {
-        req.error(400, "Stock quantity cannot be negative");
+        req.error(400, "Name, price, and stock quantity are required, if they exist their value should be greater than 0");
         return;
       }
       const existingProduct = await srv.tx(req).run(
