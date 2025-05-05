@@ -43,3 +43,5 @@ entity OrderItems : cuid {
   totalPrice  : Decimal(10,2);
   notes       : String(1000);
 }
+
+// Order-management
