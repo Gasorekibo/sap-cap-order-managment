@@ -424,4 +424,85 @@ describe("Business Validation Tests", () => {
       }
     });
   });
+
+  describe("Update Order Validations", ()=> {
+    const testProduct1 = {
+      ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+      name: "Test Product 1",
+      price: 10.0,
+      stockQuantity: 100,
+    }
+    const testProduct2 = {
+      ID: "f2c4381c-1b44-4fd3-ae38-296333ef377b",
+      name: "Test Product 2",
+      price: 20.0,
+      stockQuantity: 50,
+    };
+    const orderwithItems = {
+      customer_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+      items: [
+        {
+          product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+          quantity: 2,
+        },
+        {
+          product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+          quantity: "",
+        },
+      ],
+    }
+    const orderwithoutItems = {
+      customer_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+      items: [],
+    }
+    it("Should reject if order items are empty", async () => {
+      try {
+        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", orderwithoutItems);
+        fail("Expected order update with empty items to be rejected");
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain(
+          "Order must contain at least one item"
+        );
+      }
+    });
+    it('Should not update order if any new item is empty', async ()=> {
+      const order: {
+        status: string,
+        items: Array<{ product_ID: string; quantity: number }>
+      } = {
+        status:"",
+        items: [
+          {
+            product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+            quantity: 2,
+          }
+        ],
+      }
+      
+      try {
+        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", order);
+        fail("Expected order update with empty items to be rejected");
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain(
+          "cannot be null or undefined or empty"
+        );
+        
+      }
+    })
+
+    it('Should reject if any item is missing product ID or quantity', async () => {
+      try {
+        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", orderwithItems);
+        fail("Expected order update with missing item details to be rejected");
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain(
+          "Product ID and quantity are required for all order items"
+        );
+      }
+    })
+  })
+  
 });
