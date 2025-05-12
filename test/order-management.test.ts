@@ -1,9 +1,10 @@
-import cds from "@sap/cds";
 
+import cds from "@sap/cds";
+import { ICustomer, IOrder, IProduct, ItestCase } from "../types/interfaces";
 describe("Business Validation Tests", () => {
   const testInstance = cds.test(__dirname + "/..");
 
-  let testCustomer, testProduct1, testProduct2, order1, order2;
+  let testCustomer:ICustomer, testProduct1:IProduct, testProduct2:IProduct, order1:IOrder;
   beforeAll(async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const customerResponse = await testInstance.post("/order-mgmt/Customers", {
@@ -46,27 +47,13 @@ describe("Business Validation Tests", () => {
       ],
     });
     order1 = orderResponse1.data;
-    const orderResponse2 = await testInstance.post("/order-mgmt/Orders", {
-      customer_ID: testCustomer.ID,
-      status: "New",
-      notes: "Corporate purchase",
-      items: [
-        {
-          product_ID: testProduct1.ID,
-          quantity: 1,
-        },
-        {
-          product_ID: testProduct2.ID,
-          quantity: 2,
-        },
-      ],
-    });
-    order2 = orderResponse2.data;
+    
   });
 
   describe("Product Business Validations", () => {
     it("Should enforce all required fields", async () => {
-      const testCases = [
+      
+      const testCases:ItestCase[] = [
         {
           data: { name: "Missing Price and Stock", description: "Test" },
           expectedError: "Name, price, and stock quantity are required",
@@ -163,7 +150,6 @@ describe("Business Validation Tests", () => {
 
   describe("Customer Business Validations", () => {
     it("Should enforce all required fields", async () => {
-      // Define various invalid customer combinations
       const testCases = [
         {
           data: { lastName: "Smith", phone: "123-456-7890" },
