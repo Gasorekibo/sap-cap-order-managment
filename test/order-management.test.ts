@@ -3,8 +3,65 @@ import cds from "@sap/cds";
 describe("Business Validation Tests", () => {
   const testInstance = cds.test(__dirname + "/..");
 
+  let testCustomer, testProduct1, testProduct2, order1, order2;
   beforeAll(async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    const customerResponse = await testInstance.post("/order-mgmt/Customers", {
+      firstName: "Order",
+      lastName: "ValidationTest",
+      email: `order.validation.${Date.now()}@example.com`,
+      phone: "333-444-5555",
+    });
+    testCustomer = customerResponse.data;
+
+    const product1Response = await testInstance.post("/order-mgmt/Products", {
+      name: `Validation Product 1 ${Date.now()}`,
+      description: "First validation test product",
+      price: 39.99,
+      stockQuantity: 25,
+    });
+    testProduct1 = product1Response.data;
+
+    const product2Response = await testInstance.post("/order-mgmt/Products", {
+      name: `Validation Product 2 ${Date.now()}`,
+      description: "Second validation test product",
+      price: 19.99,
+      stockQuantity: 10,
+    });
+    testProduct2 = product2Response.data;
+
+    const orderResponse1 = await testInstance.post("/order-mgmt/Orders", {
+      customer_ID: testCustomer.ID,
+      status: "New",
+      notes: "Corporate purchase",
+      items: [
+        {
+          product_ID: testProduct1.ID,
+          quantity: 2,
+        },
+        {
+          product_ID: testProduct2.ID,
+          quantity: 3,
+        },
+      ],
+    });
+    order1 = orderResponse1.data;
+    const orderResponse2 = await testInstance.post("/order-mgmt/Orders", {
+      customer_ID: testCustomer.ID,
+      status: "New",
+      notes: "Corporate purchase",
+      items: [
+        {
+          product_ID: testProduct1.ID,
+          quantity: 1,
+        },
+        {
+          product_ID: testProduct2.ID,
+          quantity: 2,
+        },
+      ],
+    });
+    order2 = orderResponse2.data;
   });
 
   describe("Product Business Validations", () => {
@@ -122,7 +179,6 @@ describe("Business Validation Tests", () => {
         },
       ];
 
-      
       for (const testCase of testCases) {
         try {
           await testInstance.post("/order-mgmt/Customers", testCase.data);
@@ -168,39 +224,6 @@ describe("Business Validation Tests", () => {
   });
 
   describe("Order Complex Business Validations", () => {
-    let testCustomer, testProduct1, testProduct2;
-
-    beforeAll(async () => {
-      
-      const customerResponse = await testInstance.post(
-        "/order-mgmt/Customers",
-        {
-          firstName: "Order",
-          lastName: "ValidationTest",
-          email: `order.validation.${Date.now()}@example.com`,
-          phone: "333-444-5555",
-        }
-      );
-      testCustomer = customerResponse.data;
-
-      
-      const product1Response = await testInstance.post("/order-mgmt/Products", {
-        name: `Validation Product 1 ${Date.now()}`,
-        description: "First validation test product",
-        price: 39.99,
-        stockQuantity: 25,
-      });
-      testProduct1 = product1Response.data;
-
-      const product2Response = await testInstance.post("/order-mgmt/Products", {
-        name: `Validation Product 2 ${Date.now()}`,
-        description: "Second validation test product",
-        price: 19.99,
-        stockQuantity: 10,
-      });
-      testProduct2 = product2Response.data;
-    });
-
     it("Should reject order without customer ID", async () => {
       const order = {
         items: [
@@ -325,11 +348,9 @@ describe("Business Validation Tests", () => {
       const response = await testInstance.post("/order-mgmt/Orders", order);
       expect(response.status).toBe(201);
 
-      
       const expectedTotal = testProduct1.price * 2 + testProduct2.price * 3;
       expect(response.data.totalAmount).toBe(expectedTotal);
 
-     
       const orderItems = await testInstance.get(
         `/order-mgmt/Orders(${response.data.ID})/items`
       );
@@ -344,7 +365,6 @@ describe("Business Validation Tests", () => {
       expect(firstItem.unitPrice).toBe(testProduct1.price);
       expect(firstItem.totalPrice).toBe(testProduct1.price * 2);
 
-      
       const secondItem = orderItems.data.value.find(
         (item) => item.product_ID === testProduct2.ID
       );
@@ -354,7 +374,6 @@ describe("Business Validation Tests", () => {
     });
 
     it("Should handle complex concurrent stock validation", async () => {
-      
       const limitedProductResponse = await testInstance.post(
         "/order-mgmt/Products",
         {
@@ -366,7 +385,6 @@ describe("Business Validation Tests", () => {
       );
       const limitedProduct = limitedProductResponse.data;
 
-      
       const order1 = {
         customer_ID: testCustomer.ID,
         items: [
@@ -377,7 +395,6 @@ describe("Business Validation Tests", () => {
         ],
       };
 
-      
       const order2 = {
         customer_ID: testCustomer.ID,
         items: [
@@ -388,21 +405,17 @@ describe("Business Validation Tests", () => {
         ],
       };
 
-   
       const response1 = await testInstance.post("/order-mgmt/Orders", order1);
       expect(response1.status).toBe(201);
 
-      
       const response2 = await testInstance.post("/order-mgmt/Orders", order2);
       expect(response2.status).toBe(201);
 
-      
       const updatedProductResponse = await testInstance.get(
         `/order-mgmt/Products(${limitedProduct.ID})`
       );
       expect(updatedProductResponse.data.stockQuantity).toBe(0);
 
-      
       const order3 = {
         customer_ID: testCustomer.ID,
         items: [
@@ -425,39 +438,17 @@ describe("Business Validation Tests", () => {
     });
   });
 
-  describe("Update Order Validations", ()=> {
-    const testProduct1 = {
-      ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
-      name: "Test Product 1",
-      price: 10.0,
-      stockQuantity: 100,
-    }
-    const testProduct2 = {
-      ID: "f2c4381c-1b44-4fd3-ae38-296333ef377b",
-      name: "Test Product 2",
-      price: 20.0,
-      stockQuantity: 50,
-    };
-    const orderwithItems = {
-      customer_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
-      items: [
-        {
-          product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
-          quantity: 2,
-        },
-        {
-          product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
-          quantity: "",
-        },
-      ],
-    }
-    const orderwithoutItems = {
-      customer_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
-      items: [],
-    }
+  describe("Update Order Validations", () => {
     it("Should reject if order items are empty", async () => {
+      const orderwithoutItems = {
+        customer_ID: testCustomer.ID,
+        items: [],
+      };
       try {
-        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", orderwithoutItems);
+        await testInstance.patch(
+          "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
+          orderwithoutItems
+        );
         fail("Expected order update with empty items to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
@@ -466,43 +457,103 @@ describe("Business Validation Tests", () => {
         );
       }
     });
-    it('Should not update order if any new item is empty', async ()=> {
+    it("Should not update order if any new item is empty", async () => {
       const order: {
-        status: string,
-        items: Array<{ product_ID: string; quantity: number }>
+        customer_ID: string;
+        status: string;
+        items: Array<{ product_ID: string; quantity: number }>;
       } = {
-        status:"",
+        customer_ID: testCustomer.ID,
+        status: "",
         items: [
           {
-            product_ID: "f2c4381c-1b44-4fd3-ae38-296333ef377a",
+            product_ID: testProduct1.ID,
             quantity: 2,
-          }
+          },
         ],
-      }
-      
+      };
+
       try {
-        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", order);
+        await testInstance.patch(
+          "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
+          order
+        );
         fail("Expected order update with empty items to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
         expect(error.response.data.error.message).toContain(
           "cannot be null or undefined or empty"
         );
-        
       }
-    })
+    });
+    
+    it("Should reject update order if the quantity is greater than stock", async () => {
+      const order = {
+        customer_ID: testCustomer.ID,
+        items: [
+          {
+            product_ID: testProduct2.ID,
+            quantity: 1000,
+          },
+        ],
+      };
 
-    it('Should reject if any item is missing product ID or quantity', async () => {
       try {
-        await testInstance.patch("/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)", orderwithItems);
-        fail("Expected order update with missing item details to be rejected");
+        await testInstance.patch(
+          `/order-mgmt/Orders(${order1.ID})`,
+          order
+        );
+        fail("Expected order update with insufficient stock to be rejected");
       } catch (error) {
-        expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Product ID and quantity are required for all order items"
+        expect(error.code).toBe('ERR_BAD_REQUEST');
+        expect(error.message).toContain(
+          "Not enough stock available"
         );
       }
-    })
-  })
-  
+    });
+    it("Should reject if any item is missing product ID or quantity", async () => {
+      const orderwithItems = {
+        customer_ID: testCustomer.ID,
+        items: [
+          {
+            product_ID: 'non-existent-product-id',
+            quantity: 2,
+          }
+        ],
+      };
+      try {
+        await testInstance.patch(
+          `/order-mgmt/Orders(${order1.ID})`,
+          orderwithItems
+        );
+        fail("Expected order update with missing item details to be rejected");
+      } catch (error) {
+        expect(error.code).toBe('ERR_BAD_REQUEST');
+        expect(error.message).toContain(
+          "Product with ID non-existent-product-id not found"
+        );
+      }
+    });
+    it("Should calculate order total correctly on update", async () => {
+      const order = {
+        customer_ID: testCustomer.ID,
+        items: [
+          {
+            product_ID: testProduct1.ID,
+            quantity: 2,
+          }
+        ],
+      };
+
+      const response = await testInstance.patch(
+        `/order-mgmt/Orders(${order1.ID})`,
+        order
+      );
+      expect(response.status).toBe(200);
+
+      const expectedTotal = testProduct1.price * 2 ;
+      expect(response.data.totalAmount).toBe(expectedTotal);
+    });
+    
+  });
 });
