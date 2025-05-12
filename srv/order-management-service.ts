@@ -2,10 +2,6 @@ import cds from "@sap/cds";
 const { SELECT, UPDATE } = cds.ql;
 import { Request } from "@sap/cds";
 export default async function (srv) {
-  console.log("========================================");
-  console.log("ORDER MANAGEMENT SERVICE IS INITIALIZING");
-  console.log("========================================");
-
   const { Orders, Products, Customers } = srv.entities;
   srv.before("CREATE", Products, async (req: Request) => {
     if (!req.data.name || !req.data.price || !req.data.stockQuantity) {
@@ -137,63 +133,33 @@ export default async function (srv) {
       }
     }
 
-
     if (req.data.items) {
       let totalOrderAmount = 0;
-      const processedItems = [];
       try {
-        const productPromises = req.data.items.map(async (orderItem: any) => {
-          if (!orderItem.product_ID || !orderItem.quantity) {
-            throw new Error(
-              "Product ID and quantity are required for all order items"
-            );
-          }
-
-          const product = await srv
-            .tx(req)
-            .run(SELECT.one.from(Products).where({ ID: orderItem.product_ID }));
-
-          if (!product) {
-            throw new Error(
-              `Product with ID ${orderItem.product_ID} not found`
-            );
-          }
-
-          if (product.stockQuantity < orderItem.quantity) {
-            throw new Error(
-              `Not enough stock available for product ${product.name}. Requested: ${orderItem.quantity}, Available: ${product.stockQuantity}`
-            );
-          }
-
-          const itemTotalPrice = product.price * orderItem.quantity;
-          totalOrderAmount += itemTotalPrice;
-
-          return {
-            original: orderItem,
-            product: product,
-            unitPrice: product.price,
-            totalPrice: itemTotalPrice,
-          };
-        });
-
-        const validatedItems = await Promise.all(productPromises);
-
-        for (const item of validatedItems) {
-          // Update product stock
-          await srv.tx(req).run(
-            UPDATE.entity(Products)
-              .where({ ID: item.original.product_ID })
-              .set({
-                stockQuantity: { "-=": item.original.quantity },
-              })
-          );
-
-          item.original.unitPrice = item.unitPrice;
-          item.original.totalPrice = item.totalPrice;
+       const product = await srv.tx(req).run(
+        SELECT.one.from(Products).where({ ID: req.data.items[0].product_ID })
+       ) 
+       if(!product){
+        throw new Error(`Product with ID ${req.data.items[0].product_ID} not found`);
+       }
+        if(product.stockQuantity < req.data.items[0].quantity){
+          throw new Error(`Not enough stock available for product ${product.name}. Requested: ${req.data.items[0].quantity}, Available: ${product.stockQuantity}`);
         }
-
+        const itemTotalPrice = product.price * req.data.items[0].quantity;
+        totalOrderAmount = itemTotalPrice;
+        // Update product stock
+        await srv.tx(req).run(
+          UPDATE.entity(Products)
+            .where({ ID: req.data.items[0].product_ID })
+            .set({
+              stockQuantity: { "-=": req.data.items[0].quantity },
+            })
+        );
+        req.data.items[0].unitPrice = product.price;
+        req.data.items[0].totalPrice = itemTotalPrice;
         req.data.totalAmount = totalOrderAmount;
       } catch (error) {
+        console.log(error)
         req.error(400, error.message);
         return;
       }
