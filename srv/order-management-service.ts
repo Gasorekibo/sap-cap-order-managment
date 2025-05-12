@@ -159,7 +159,6 @@ export default async function (srv) {
         req.data.items[0].totalPrice = itemTotalPrice;
         req.data.totalAmount = totalOrderAmount;
       } catch (error) {
-        console.log(error)
         req.error(400, error.message);
         return;
       }
