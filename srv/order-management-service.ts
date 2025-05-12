@@ -147,7 +147,7 @@ export default async function (srv) {
         }
         const itemTotalPrice = product.price * req.data.items[0].quantity;
         totalOrderAmount = itemTotalPrice;
-        // Update product stock
+        
         await srv.tx(req).run(
           UPDATE.entity(Products)
             .where({ ID: req.data.items[0].product_ID })

@@ -514,6 +514,7 @@ describe("Business Validation Tests", () => {
         );
         fail("Expected order update with missing item details to be rejected");
       } catch (error) {
+        console.log(error)
         expect(error.code).toBe('ERR_BAD_REQUEST');
         expect(error.message).toContain(
           "Product with ID non-existent-product-id not found"
