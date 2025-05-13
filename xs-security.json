@@ -1,15 +1,16 @@
 {
+  "xsappname": "order-management-dev",
   "scopes": [
     {
       "name": "$XSAPPNAME.admin",
-      "description": "admin"
+      "description": "Admin role for order management"
     }
   ],
   "attributes": [],
   "role-templates": [
     {
       "name": "admin",
-      "description": "generated",
+      "description": "Admin role template",
       "scope-references": [
         "$XSAPPNAME.admin"
       ],
