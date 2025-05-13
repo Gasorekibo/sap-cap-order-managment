@@ -97,7 +97,6 @@ export default async function (srv) {
       const validatedItems = await Promise.all(productPromises);
 
       for (const item of validatedItems) {
-        // Update product stock
         await srv.tx(req).run(
           UPDATE.entity(Products)
             .where({ ID: item.original.product_ID })
