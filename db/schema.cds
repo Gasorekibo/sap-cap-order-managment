@@ -44,4 +44,28 @@ entity OrderItems : cuid {
   notes       : String(1000);
 }
 
-// Order-management
+annotate Products with @(
+    // Admin has full access
+    restrict: [
+        { grant: 'READ', to: ['admin', 'authenticated-user'] },
+        { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
+    ]
+);
+
+annotate Customers with @(
+    // Users can only read and update their own data
+    restrict: [
+        { grant: 'READ', to: ['admin', 'authenticated-user'] },
+        { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
+        { grant: ['DELETE', 'READ'], to: 'admin' }
+    ]
+);
+
+annotate Orders with @(
+    // Admin has full access, users can only manage their own orders
+    restrict: [
+        { grant: 'READ', to: ['admin', 'authenticated-user'] },
+        { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
+        { grant: 'DELETE', to: 'admin' }
+    ]
+);
