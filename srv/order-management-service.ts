@@ -1,13 +1,13 @@
-import cds from "@sap/cds";
+import cds, { update } from "@sap/cds";
 const { SELECT, UPDATE } = cds.ql;
 import { Request } from "@sap/cds";
 export default async function (srv) {
   const { Orders, Products, Customers } = srv.entities;
+  const i18n =  cds.i18n.labels
   srv.before("CREATE", Products, async (req: Request) => {
     if (!req.data.name || !req.data.price || !req.data.stockQuantity) {
       req.error(
-        400,
-        "Name, price, and stock quantity are required, if they exist their value should be greater than 0"
+        400, i18n.at('product.required')
       );
       return;
     }
@@ -15,28 +15,28 @@ export default async function (srv) {
       .tx(req)
       .run(SELECT.one.from(Products).where({ name: req.data.name }));
     if (existingProduct) {
-      req.error(400, `Product with name ${req.data.name} already exists`);
+      req.error(400, i18n.at('product.exists', [req.data.name ]));
       return;
     }
   });
 
   srv.before("CREATE", Customers, async (req: Request) => {
     if (!req.data.firstName || !req.data.email || !req.data.lastName) {
-      req.error(400, "Name and email are required");
+      req.error(400, i18n.at('customer.required'));
       return;
     }
     const existingCustomer = await srv
       .tx(req)
       .run(SELECT.one.from(Customers).where({ email: req.data.email }));
     if (existingCustomer) {
-      req.error(400, `Customer with email ${req.data.email} already exists`);
+      req.error(400, i18n.at('customer.exists', [req.data.email]));
       return;
     }
   });
 
   srv.before("CREATE", Orders, async (req: Request) => {
     if (!req.data.customer_ID) {
-      req.error(400, "Customer ID is required");
+      req.error(400, i18n.at('order.customer.required'));
       return;
     }
 
@@ -45,7 +45,7 @@ export default async function (srv) {
       .run(SELECT.one.from(Customers).where({ ID: req.data.customer_ID }));
 
     if (!customer) {
-      req.error(404, `Customer with ID ${req.data.customer_ID} not found`);
+      req.error(404, i18n.at('order.customer.notfound', [req.data.customer_ID]));
       return;
     }
 
@@ -54,7 +54,7 @@ export default async function (srv) {
       !Array.isArray(req.data.items) ||
       req.data.items.length === 0
     ) {
-      req.error(400, "Order must contain at least one item");
+      req.error(400, i18n.at('order.items.required'));
       return;
     }
 
@@ -65,7 +65,7 @@ export default async function (srv) {
       const productPromises = req.data.items.map(async (orderItem: any) => {
         if (!orderItem.product_ID || !orderItem.quantity) {
           throw new Error(
-            "Product ID and quantity are required for all order items"
+            i18n.at('order.item.details.required')
           );
         }
 
@@ -74,12 +74,16 @@ export default async function (srv) {
           .run(SELECT.one.from(Products).where({ ID: orderItem.product_ID }));
 
         if (!product) {
-          throw new Error(`Product with ID ${orderItem.product_ID} not found`);
+          throw new Error(i18n.at('order.product.notfound', [orderItem.product_ID]));
         }
 
         if (product.stockQuantity < orderItem.quantity) {
           throw new Error(
-            `Not enough stock available for product ${product.name}. Requested: ${orderItem.quantity}, Available: ${product.stockQuantity}`
+            i18n.at('order.insufficient.stock', {
+              product: product.name,
+              requested: orderItem.quantity,
+              available: product.stockQuantity,
+            })
           );
         }
 
@@ -118,7 +122,7 @@ export default async function (srv) {
 
   srv.before("UPDATE", Orders, async (req: Request) => {
     if (req.data.items && req.data.items.length === 0) {
-      req.error(400, "Order must contain at least one item");
+      req.error(400, i18n.at('update.order.without.items'));
       return;
     }
     for (let key in req.data) {
@@ -127,7 +131,7 @@ export default async function (srv) {
         req.data[key] === undefined ||
         req.data[key] === ""
       ) {
-        req.error(400, `${key} cannot be null or undefined or empty`);
+        req.error(400, i18n.at('update.null.error', [key]));
         return;
       }
     }
@@ -139,10 +143,14 @@ export default async function (srv) {
         SELECT.one.from(Products).where({ ID: req.data.items[0].product_ID })
        ) 
        if(!product){
-        throw new Error(`Product with ID ${req.data.items[0].product_ID} not found`);
+        throw new Error(i18n.at('order.product.notfound', [req.data.items[0].product_ID]));
        }
         if(product.stockQuantity < req.data.items[0].quantity){
-          throw new Error(`Not enough stock available for product ${product.name}. Requested: ${req.data.items[0].quantity}, Available: ${product.stockQuantity}`);
+          throw new Error(i18n.at('update.insufficient.stock', [
+            product.name,
+            req.data.items[0].quantity,
+            product.stockQuantity,
+          ]));
         }
         const itemTotalPrice = product.price * req.data.items[0].quantity;
         totalOrderAmount = itemTotalPrice;
