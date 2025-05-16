@@ -44,13 +44,13 @@ entity OrderItems : cuid {
   notes       : String(1000);
 }
 
-annotate Products with @(
-    // Admin has full access
-    restrict: [
-        { grant: 'READ', to: ['admin', 'authenticated-user'] },
-        { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
-    ]
-);
+// annotate Products with @(
+//     // Admin has full access
+//     restrict: [
+//         { grant: 'READ', to: ['admin', 'authenticated-user'] },
+//         { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
+//     ]
+// );
 
 annotate Customers with @(
     // Users can only read and update their own data

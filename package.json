@@ -36,11 +36,16 @@
     "watch": "tsc -w",
     "deploy:local": "cds deploy",
     "test": "jest --detectOpenHandles --forceExit",
-    "test:coverage": "jest --detectOpenHandles --forceExit --coverage"
+    "test:coverage": "jest --detectOpenHandles --forceExit --coverage",
+    "watch-products": "cds watch --open products/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-customers": "cds watch --open customers/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "cds": {
-     "i18n": {
-      "folders": ["_i18n"],
+    "i18n": {
+      "folders": [
+        "_i18n"
+      ],
       "default_language": "en"
     },
     "requires": {
@@ -78,5 +83,10 @@
   },
   "imports": {
     "#cds-models/*": "./@cds-models/*/index.js"
-  }
+  },
+  "sapux": [
+    "app/products",
+    "app/customers",
+    "app/orders"
+  ]
 }
