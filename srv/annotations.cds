@@ -16,7 +16,7 @@ annotate OrderManagementService.Products with @(
       { Value: name, Label: 'Product Name' },
       { Value: description, Label: 'Description' },
       { Value: price, Label: 'Price' },
-      { Value: currency.code, Label: 'Currency' },
+      { Value: currency_code, Label: 'Currency' },
       { Value: stockQuantity, Label: 'Stock' },
       { Value: category, Label: 'Category' },
       { Value: supplier, Label: 'Supplier' }
@@ -49,7 +49,7 @@ annotate OrderManagementService.Products with @(
     FieldGroup#StockPricing: {
       Data: [
         { Value: price, Label: 'Price' },
-        { Value: currency.code, Label: 'Currency' },
+        { Value: currency_code, Label: 'Currency' },
         { Value: stockQuantity, Label: 'Stock Quantity' },
         { Value: unit, Label: 'Unit' }
       ]
