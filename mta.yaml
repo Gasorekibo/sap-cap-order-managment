@@ -11,6 +11,7 @@ build-parameters:
         - npm ci
         - npx cds build --production
 modules:
+  # CAP Service Module
   - name: order-management-srv
     type: nodejs
     path: gen/srv
@@ -27,6 +28,7 @@ modules:
       - name: order-management-db
       - name: order-management-auth
 
+  # Database Deployer Module
   - name: order-management-db-deployer
     type: hdb
     path: gen/db
@@ -35,6 +37,7 @@ modules:
     requires:
       - name: order-management-db
 
+  # App Router Module (with basic HTML5 support)
   - name: order-management
     type: approuter.nodejs
     path: app/router
@@ -57,11 +60,14 @@ modules:
           app-uri: ${default-uri}
 
 resources:
+  # Database
   - name: order-management-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
+
+  # Authentication
   - name: order-management-auth
     type: org.cloudfoundry.managed-service
     parameters:

@@ -69,8 +69,7 @@
           "kind": "hana"
         },
         "auth": "xsuaa"
-      },
-      "auth": "xsuaa"
+      }
     },
     "sql": {
       "native_hana_associations": false
