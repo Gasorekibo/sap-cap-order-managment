@@ -62,6 +62,12 @@
             border-radius: 4px;
             margin: 20px 0;
         }
+        .app-section {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -70,28 +76,51 @@
         <p class="description">Welcome to the Order Management System. Your CAP service is running successfully!</p>
         
         <div class="section">
-            <h2>🔗 OData Service Endpoints</h2>
-            <div class="service-info">
-                <p><strong>Base Service URL:</strong> <code>/order-mgmt/</code></p>
-                <p>Click the links below to explore your data:</p>
+            <h2>🚀 Fiori Applications</h2>
+            <div class="app-section">
+                <p><strong>Access your business applications:</strong></p>
+                <p>Click the links below to open the Fiori applications with populated data:</p>
             </div>
             
             <ul class="nav-links">
                 <li>
-                    <a href="/order-mgmt/$metadata">📄 Metadata Document</a>
+                    <a href="/customers/">👥 Customers Management</a>
+                    <div class="description">Manage customer records with Fiori interface</div>
+                </li>
+                <li>
+                    <a href="/orders/">📦 Orders Management</a>
+                    <div class="description">Manage order records with Fiori interface</div>
+                </li>
+                <li>
+                    <a href="/products/">🛍️ Products Management</a>
+                    <div class="description">Manage product records with Fiori interface</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔗 OData Service Endpoints (for developers)</h2>
+            <div class="service-info">
+                <p><strong>Base Service URL:</strong> <code>/order-mgmt/</code></p>
+                <p>Raw data endpoints for development and testing:</p>
+            </div>
+            
+            <ul class="nav-links">
+                <li>
+                    <a href="/order-mgmt/$metadata" target="_blank">📄 Metadata Document</a>
                     <div class="description">View the service schema and entity definitions</div>
                 </li>
                 <li>
-                    <a href="/order-mgmt/Customers">👥 Customers Data</a>
-                    <div class="description">Browse all customer records</div>
+                    <a href="/order-mgmt/Customers" target="_blank">👥 Customers Data (JSON)</a>
+                    <div class="description">Browse all customer records in JSON format</div>
                 </li>
                 <li>
-                    <a href="/order-mgmt/Orders">📦 Orders Data</a>
-                    <div class="description">Browse all order records</div>
+                    <a href="/order-mgmt/Orders" target="_blank">📦 Orders Data (JSON)</a>
+                    <div class="description">Browse all order records in JSON format</div>
                 </li>
                 <li>
-                    <a href="/order-mgmt/Products">🛍️ Products Data</a>
-                    <div class="description">Browse all product records</div>
+                    <a href="/order-mgmt/Products" target="_blank">🛍️ Products Data (JSON)</a>
+                    <div class="description">Browse all product records in JSON format</div>
                 </li>
             </ul>
         </div>

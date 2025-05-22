@@ -10,6 +10,42 @@
       "csrfProtection": false
     },
     {
+      "source": "^/customers/(.*)$",
+      "target": "$1",
+      "localDir": "customers/",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/customers$",
+      "target": "/index.html",
+      "localDir": "customers/",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/orders/(.*)$",
+      "target": "$1",
+      "localDir": "orders/",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/orders$",
+      "target": "/index.html",
+      "localDir": "orders/",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/products/(.*)$",
+      "target": "$1",
+      "localDir": "products/",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/products$",
+      "target": "/index.html",
+      "localDir": "products/",
+      "authenticationType": "xsuaa"
+    },
+    {
       "source": "^(.*)$",
       "target": "$1",
       "localDir": ".",
