@@ -4,6 +4,14 @@
     {
       "name": "$XSAPPNAME.admin",
       "description": "Admin role for order management"
+    },
+    {
+      "name": "$XSAPPNAME.viewer",
+      "description": "Viewer role for read-only access"
+    },
+    {
+      "name": "$XSAPPNAME.orderProcessor",
+      "description": "Order processor role"
     }
   ],
   "attributes": [],
@@ -15,6 +23,27 @@
         "$XSAPPNAME.admin"
       ],
       "attribute-references": []
+    },
+    {
+      "name": "viewer",
+      "description": "Viewer role template",
+      "scope-references": [
+        "$XSAPPNAME.viewer"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "orderProcessor",
+      "description": "Order processor role template",
+      "scope-references": [
+        "$XSAPPNAME.orderProcessor"
+      ],
+      "attribute-references": []
     }
-  ]
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": [
+      "https://*.cfapps.us10-001.hana.ondemand.com/**"
+    ]
+  }
 }

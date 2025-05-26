@@ -9,12 +9,12 @@
     "@cap-js/hana": "^1",
     "@sap/cds": "^8.9.2",
     "@sap/cds-dk": "^8.9.1",
+    "@sap/xssec": "^4",
     "axios": "^0.21.1",
     "chai": "^5.2.0",
     "express": "^4",
     "hdb": "^0.19.0",
-    "sqlite3": "^5.1.6",
-    "@sap/xssec": "^4"
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^0.3.0",
@@ -34,13 +34,19 @@
     "dev:hana": "cds watch --profile hybrid",
     "build": "tsc",
     "watch": "tsc -w",
+    "cds:deploy":"cf deploy mta_archives/order-management_1.0.0.mtar",
     "deploy:local": "cds deploy",
     "test": "jest --detectOpenHandles --forceExit",
-    "test:coverage": "jest --detectOpenHandles --forceExit --coverage"
+    "test:coverage": "jest --detectOpenHandles --forceExit --coverage",
+    "watch-products": "cds watch --open products/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-customers": "cds watch --open customers/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-orders": "cds watch --open orders/webapp/index.html?sap-ui-xx-viewCache=false"
   },
   "cds": {
-     "i18n": {
-      "folders": ["_i18n"],
+    "i18n": {
+      "folders": [
+        "_i18n"
+      ],
       "default_language": "en"
     },
     "requires": {
@@ -64,8 +70,7 @@
           "kind": "hana"
         },
         "auth": "xsuaa"
-      },
-      "auth": "xsuaa"
+      }
     },
     "sql": {
       "native_hana_associations": false
@@ -78,5 +83,10 @@
   },
   "imports": {
     "#cds-models/*": "./@cds-models/*/index.js"
-  }
+  },
+  "sapux": [
+    "app/products",
+    "app/customers",
+    "app/orders"
+  ]
 }
