@@ -2,6 +2,7 @@ namespace com.moyo.ordermanagement;
 
 using { Currency, managed, cuid } from '@sap/cds/common';
 
+@odata.draft.enabled
 entity Products : cuid, managed {
   name        : String(100) not null;
   description : String(1000);
@@ -13,7 +14,7 @@ entity Products : cuid, managed {
   supplier    : String(100);
   orderItems  : Association to many OrderItems on orderItems.product = $self;
 }
-
+@odata.draft.enabled
 entity Customers : cuid, managed {
   firstName   : String(50) not null;
   lastName    : String(50) not null;
@@ -25,7 +26,7 @@ entity Customers : cuid, managed {
   country     : String(50);
   orders      : Association to many Orders on orders.customer = $self;
 }
-
+@odata.draft.enabled
 entity Orders : cuid, managed {
   customer    : Association to Customers;
   items       : Composition of many OrderItems on items.order = $self;

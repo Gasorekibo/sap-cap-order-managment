@@ -34,6 +34,7 @@
     "dev:hana": "cds watch --profile hybrid",
     "build": "tsc",
     "watch": "tsc -w",
+    "cds:deploy":"cf deploy mta_archives/order-management_1.0.0.mtar",
     "deploy:local": "cds deploy",
     "test": "jest --detectOpenHandles --forceExit",
     "test:coverage": "jest --detectOpenHandles --forceExit --coverage",
