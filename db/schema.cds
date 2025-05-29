@@ -4,7 +4,7 @@ using { Currency, managed, cuid } from '@sap/cds/common';
 
 @odata.draft.enabled
 entity Products : cuid, managed {
-  name        : String(100) not null;
+  name        : String(100) not null @assert.unique;
   description : String(1000);
   price       : Decimal(10,2) not null;
   currency    : Currency;
@@ -18,7 +18,7 @@ entity Products : cuid, managed {
 entity Customers : cuid, managed {
   firstName   : String(50) not null;
   lastName    : String(50) not null;
-  email       : String(100) not null;
+  email       : String(100) not null @assert.unique;
   phone       : String(20);
   address     : String(200);
   city        : String(50);
@@ -26,12 +26,20 @@ entity Customers : cuid, managed {
   country     : String(50);
   orders      : Association to many Orders on orders.customer = $self;
 }
+type OrderStatus : String enum {
+  New;
+  Processing;
+  Shipped;
+  Delivered;
+  Cancelled;
+}
+
 @odata.draft.enabled
 entity Orders : cuid, managed {
   customer    : Association to Customers;
   items       : Composition of many OrderItems on items.order = $self;
   totalAmount : Decimal(10,2);
-  status      : String(20) default 'New';
+  status      : OrderStatus default 'New';
   orderDate   : Timestamp default $now;
   notes       : String(1000);
 }
@@ -46,7 +54,6 @@ entity OrderItems : cuid {
 }
 
 annotate Products with @(
-    // Admin has full access
     restrict: [
         { grant: 'READ', to: ['admin', 'authenticated-user'] },
         { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
@@ -54,7 +61,6 @@ annotate Products with @(
 );
 
 annotate Customers with @(
-    // Users can only read and update their own data
     restrict: [
         { grant: 'READ', to: ['admin', 'authenticated-user'] },
         { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
@@ -63,7 +69,6 @@ annotate Customers with @(
 );
 
 annotate Orders with @(
-    // Admin has full access, users can only manage their own orders
     restrict: [
         { grant: 'READ', to: ['admin', 'authenticated-user'] },
         { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },

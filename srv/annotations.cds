@@ -15,6 +15,9 @@ annotate OrderManagementService.Products with @(
     }
   },
   UI: {
+    CreateHidden: false,
+    UpdateHidden: false,
+    DeleteHidden: false,
     HeaderInfo: {
       TypeName: 'Product',
       TypeNamePlural: 'Products',
@@ -75,16 +78,7 @@ annotate OrderManagementService.Products with @(
       Text: 'Default',
       SortOrder: [{ Property: 'name' }],
       Visualizations: ['@UI.LineItem', '@UI.Chart']
-    },
-    Identification: [
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Delete',
-        Action: 'OrderManagementService.deleteProduct',
-        Criticality: 1, 
-        ![@UI.Importance]: #High
-      }
-    ]
+    }
   }
 );
 
@@ -101,6 +95,9 @@ annotate OrderManagementService.Customers with @(
     }
   },
   UI: {
+    CreateHidden: false,
+    UpdateHidden: false,
+    DeleteHidden: false,
     HeaderInfo: {
       TypeName: 'Customer',
       TypeNamePlural: 'Customers',
@@ -185,28 +182,10 @@ annotate OrderManagementService.Customers with @(
       Dimensions: ['country'],
       Title: 'Customers by Country'
     },
-    Identification: [
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Create Order',
-        Action: 'OrderManagementService.createOrderForCustomer',
-        Criticality: 3, // Green color for create
-        ![@UI.Importance]: #High
-      },
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Delete',
-        Action: 'OrderManagementService.deleteCustomer',
-        Criticality: 1, // Red color for delete
-        ![@UI.Importance]: #High
-      }
-    ]
   }
 );
 
-// Order Annotations
 annotate OrderManagementService.Orders with @(
-  CreateHidden: false,
   Capabilities: {
     InsertRestrictions: {
       Insertable: true
@@ -219,6 +198,9 @@ annotate OrderManagementService.Orders with @(
     }
   },
   UI: {
+    CreateHidden: false,
+    UpdateHidden: false,
+    DeleteHidden: false,
     HeaderInfo: {
       TypeName: 'Order',
       TypeNamePlural: 'Orders',
@@ -233,28 +215,9 @@ annotate OrderManagementService.Orders with @(
     ],
     LineItem: [
       { Value: ID, Label: 'Order ID' },
-      { 
-        Value: {
-          $edmJson: {
-            $Apply: [
-              { $Path: 'customer/firstName' },
-              { $String: ' ' },
-              { $Path: 'customer/lastName' }
-            ],
-            $Function: 'odata.concat'
-          }
-        },
-        Label: 'Customer'
-      },
       { Value: orderDate, Label: 'Order Date' },
       { Value: status, Label: 'Status' },
-      { Value: totalAmount, Label: 'Total Amount' },
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Delete',
-        Action: 'OrderManagementService.deleteOrder',
-        Criticality: 1
-      }
+      { Value: totalAmount, Label: 'Total Amount' }
     ],
     Facets: [
       {
@@ -276,25 +239,29 @@ annotate OrderManagementService.Orders with @(
     FieldGroup#OrderDetails: {
       Data: [
         { 
-          Value: {
-            $edmJson: {
-              $Apply: [
-                { $Path: 'customer/firstName' },
-                { $String: ' ' },
-                { $Path: 'customer/lastName' }
-              ],
-              $Function: 'odata.concat'
-            }
-          },
-          Label: 'Customer'
+          Value: customer.firstName,Label: 'Customer',
+          
         },
         { Value: orderDate, Label: 'Order Date' },
         { Value: status, Label: 'Status' },
         { Value: totalAmount, Label: 'Total Amount' }
-      ]
+      ] 
     },
     FieldGroup#Notes: {
       Data: [
+        { Value: notes, Label: 'Notes' }
+      ]
+    },
+    // Add specific FieldGroup for Create/Edit forms
+    FieldGroup#CreateEdit: {
+      Data: [
+        { Value: customer_ID, Label: 'Customer ID' },
+        { Value: orderDate, Label: 'Order Date' },
+        { Value: status, Label: 'Status' },
+        { Value: totalAmount, Label: 'Total Amount' },
+        { Value: notes, Label: 'Notes' },
+        { Value: orderDate, Label: 'Order Date' },
+        { Value: status, Label: 'Status' },
         { Value: notes, Label: 'Notes' }
       ]
     },
@@ -304,20 +271,6 @@ annotate OrderManagementService.Orders with @(
       Measures: ['totalAmount'],
       Title: 'Orders by Status'
     },
-    Identification: [
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Create New Order',
-        Action: 'OrderManagementService.createNewOrder',
-        Criticality: 3
-      },
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Delete Order',
-        Action: 'OrderManagementService.deleteOrder',
-        Criticality: 1
-      }
-    ],
     HeaderFacets: [
       {
         $Type: 'UI.ReferenceFacet',
@@ -354,6 +307,9 @@ annotate OrderManagementService.OrderItems with @(
     }
   },
   UI: {
+    CreateHidden: false,
+    UpdateHidden: false,
+    DeleteHidden: false,
     HeaderInfo: {
       TypeName: 'Order Item',
       TypeNamePlural: 'Order Items',
@@ -362,16 +318,15 @@ annotate OrderManagementService.OrderItems with @(
     },
     LineItem: [
       { Value: product_ID, Label: 'Product ID' },
-      { Value: product.name, Label: 'Product' },
+      { 
+        Value: product.name, 
+        Label: 'Product',
+        ![@Common.Text]: product.name,
+        ![@UI.TextArrangement]: #TextOnly
+      },
       { Value: quantity, Label: 'Quantity' },
       { Value: unitPrice, Label: 'Unit Price' },
       { Value: totalPrice, Label: 'Total Price' },
-      {
-        $Type: 'UI.DataFieldForAction',
-        Label: 'Remove Item',
-        Action: 'OrderManagementService.deleteOrderItem',
-        Criticality: 1,
-      }
     ],
     Facets: [
       {
@@ -382,7 +337,12 @@ annotate OrderManagementService.OrderItems with @(
     ],
     FieldGroup#ItemDetails: {
       Data: [
-        { Value: product.name, Label: 'Product' },
+        { 
+          Value: product_ID, 
+          Label: 'Product',
+          ![@Common.Text]: product.name,
+          ![@UI.TextArrangement]: #TextOnly
+        },
         { Value: quantity, Label: 'Quantity' },
         { Value: unitPrice, Label: 'Unit Price' },
         { Value: totalPrice, Label: 'Total Price' },
@@ -392,7 +352,7 @@ annotate OrderManagementService.OrderItems with @(
   }
 );
 
-// Field-level annotations for validation and field control
+// Field-level annotations for validation and field control - FIXED
 annotate om.Products with {
   name @(
     Common.Label: 'Product Name',
@@ -442,6 +402,7 @@ annotate om.Customers with {
   );
 };
 
+// FIXED Order field annotations
 annotate om.Orders with {
   orderDate @(
     Common.Label: 'Order Date',
@@ -450,43 +411,69 @@ annotate om.Orders with {
   
   status @(
     Common.Label: 'Status',
-    Common.FieldControl: #Mandatory
-  );
-  
-  totalAmount @(
-    Common.Label: 'Total Amount',
-    Common.FieldControl: #Mandatory
-  );
-  
-  customer @(
-    Common.Label: 'Customer',
     Common.FieldControl: #Mandatory,
+    Common.ValueListWithFixedValues: true,
     Common.ValueList: {
-      Label: 'Customers',
-      CollectionPath: 'Customers',
+      CollectionPath: 'StatusValues',
       Parameters: [
         {
           $Type: 'Common.ValueListParameterInOut',
-          LocalDataProperty: customer_ID,
-          ValueListProperty: 'ID'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'firstName'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'lastName'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'email'
+          LocalDataProperty: status,
+          ValueListProperty: 'code'
         }
       ]
     }
   );
+  
+  totalAmount @(
+    Common.Label: 'Total Amount',
+    Common.FieldControl: #ReadOnly,  
+  );
+  
+  notes @(
+    Common.Label: 'Notes',
+    Common.FieldControl: #Optional,
+    UI.MultiLineText: true
+  );
 };
 
+// Add separate annotation for customer association to handle foreign key properly
+annotate om.Orders:customer with @(
+  Common.Label: 'Customer',
+  Common.FieldControl: #Mandatory,
+  Common.ValueList: {
+    Label: 'Customers',
+    CollectionPath: 'Customers',
+    Parameters: [
+      {
+        $Type: 'Common.ValueListParameterInOut',
+        LocalDataProperty: customer_ID,
+        ValueListProperty: 'ID'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',  
+        ValueListProperty: 'firstName'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',
+        ValueListProperty: 'lastName'
+      }
+    ]
+  },
+  // Remove TextArrangement to allow editing
+  Common.Text: {
+    $edmJson: {
+      $Apply: [
+        { $Path: 'customer/firstName' },
+        { $String: ' ' },
+        { $Path: 'customer/lastName' }
+      ],
+      $Function: 'odata.concat'
+    }
+  }
+);
+
+// FIXED OrderItems field annotations
 annotate om.OrderItems with {
   quantity @(
     Common.Label: 'Quantity',
@@ -495,57 +482,49 @@ annotate om.OrderItems with {
   
   unitPrice @(
     Common.Label: 'Unit Price',
-    Common.FieldControl: #Mandatory
+    Common.FieldControl: #ReadOnly,  // Should be populated from product
   );
   
-  product @(
-    Common.Label: 'Product',
-    Common.FieldControl: #Mandatory,
-    Common.ValueList: {
-      Label: 'Products',
-      CollectionPath: 'Products',
-      Parameters: [
-        {
-          $Type: 'Common.ValueListParameterInOut',
-          LocalDataProperty: product_ID,
-          ValueListProperty: 'ID'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'name'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'price'
-        },
-        {
-          $Type: 'Common.ValueListParameterDisplayOnly',
-          ValueListProperty: 'stockQuantity'
-        }
-      ]
-    }
+  totalPrice @(
+    Common.Label: 'Total Price',
+    Common.FieldControl: #ReadOnly,  // Should be calculated
+   
+  );
+  
+  notes @(
+    Common.Label: 'Notes',
+    Common.FieldControl: #Optional,
+    UI.MultiLineText: true
   );
 };
 
-annotate OrderManagementService.Products with @(
-  UI.CreateHidden: false,
-  UI.UpdateHidden: false,
-  UI.DeleteHidden: false
-);
-
-annotate OrderManagementService.Customers with @(
-  UI.CreateHidden: false,
-  UI.UpdateHidden: false,
-  UI.DeleteHidden: false
-);
-
-annotate OrderManagementService.Orders with @(
-  UI.CreateHidden: false,
-  UI.UpdateHidden: false,
-  UI.DeleteHidden: false
-);
-annotate OrderManagementService.OrderItems with @(
-  UI.CreateHidden: false,
-  UI.UpdateHidden: false,
-  UI.DeleteHidden: false
+// Add separate annotation for product association to handle foreign key properly
+annotate om.OrderItems:product with @(
+  Common.Label: 'Product',
+  Common.FieldControl: #Mandatory,
+  Common.ValueList: {
+    Label: 'Products',
+    CollectionPath: 'Products',
+    Parameters: [
+      {
+        $Type: 'Common.ValueListParameterInOut',
+        LocalDataProperty: product_ID,
+        ValueListProperty: 'ID'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',
+        ValueListProperty: 'name'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',
+        ValueListProperty: 'price'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',
+        ValueListProperty: 'stockQuantity'
+      }
+    ]
+  },
+  Common.Text: product.name,
+  Common.TextArrangement: #TextOnly
 );
