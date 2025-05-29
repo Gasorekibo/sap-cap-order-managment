@@ -18,14 +18,4 @@ service OrderManagementService @(path:'/order-mgmt') {
   };
   
   entity OrderItems as projection on om.OrderItems;
-
-  // Bound actions that work with the selected entity
-  action bound.Products.deleteProductAction() returns String;
-  action bound.Customers.deleteCustomerAction() returns String;
-  action bound.Customers.createOrderForCustomerAction() returns Orders;
-  action bound.Orders.deleteOrderAction() returns String;
-  action bound.OrderItems.deleteOrderItemAction() returns String;
-  
-  // Unbound actions for creation
-  action createNewOrder() returns Orders;
 }
