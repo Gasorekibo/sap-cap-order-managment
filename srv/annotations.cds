@@ -217,7 +217,20 @@ annotate OrderManagementService.Orders with @(
       { Value: ID, Label: 'Order ID' },
       { Value: orderDate, Label: 'Order Date' },
       { Value: status, Label: 'Status' },
-      { Value: totalAmount, Label: 'Total Amount' }
+      { Value: totalAmount, Label: 'Total Amount' },
+      { 
+        Value: { 
+          $edmJson: { 
+            $Apply: [
+              { $Path: 'customer/firstName' },
+              { $String: ' ' },
+              { $Path: 'customer/lastName' }
+            ],
+            $Function: 'odata.concat'
+          }
+        }, 
+        Label: 'Customer' 
+      }
     ],
     Facets: [
       {
@@ -238,10 +251,7 @@ annotate OrderManagementService.Orders with @(
     ],
     FieldGroup#OrderDetails: {
       Data: [
-        { 
-          Value: customer.firstName,Label: 'Customer',
-          
-        },
+        { Value: customer_ID, Label: 'Customer' },
         { Value: orderDate, Label: 'Order Date' },
         { Value: status, Label: 'Status' },
         { Value: totalAmount, Label: 'Total Amount' }
@@ -249,19 +259,6 @@ annotate OrderManagementService.Orders with @(
     },
     FieldGroup#Notes: {
       Data: [
-        { Value: notes, Label: 'Notes' }
-      ]
-    },
-    // Add specific FieldGroup for Create/Edit forms
-    FieldGroup#CreateEdit: {
-      Data: [
-        { Value: customer_ID, Label: 'Customer ID' },
-        { Value: orderDate, Label: 'Order Date' },
-        { Value: status, Label: 'Status' },
-        { Value: totalAmount, Label: 'Total Amount' },
-        { Value: notes, Label: 'Notes' },
-        { Value: orderDate, Label: 'Order Date' },
-        { Value: status, Label: 'Status' },
         { Value: notes, Label: 'Notes' }
       ]
     },
@@ -352,7 +349,7 @@ annotate OrderManagementService.OrderItems with @(
   }
 );
 
-// Field-level annotations for validation and field control - FIXED
+// Field-level annotations for validation and field control
 annotate om.Products with {
   name @(
     Common.Label: 'Product Name',
@@ -402,7 +399,7 @@ annotate om.Customers with {
   );
 };
 
-// FIXED Order field annotations
+// Fixed Order field annotations
 annotate om.Orders with {
   orderDate @(
     Common.Label: 'Order Date',
@@ -411,23 +408,12 @@ annotate om.Orders with {
   
   status @(
     Common.Label: 'Status',
-    Common.FieldControl: #Mandatory,
-    Common.ValueListWithFixedValues: true,
-    Common.ValueList: {
-      CollectionPath: 'StatusValues',
-      Parameters: [
-        {
-          $Type: 'Common.ValueListParameterInOut',
-          LocalDataProperty: status,
-          ValueListProperty: 'code'
-        }
-      ]
-    }
+    Common.FieldControl: #Mandatory
   );
   
   totalAmount @(
     Common.Label: 'Total Amount',
-    Common.FieldControl: #ReadOnly,  
+    Common.FieldControl: #ReadOnly
   );
   
   notes @(
@@ -437,7 +423,7 @@ annotate om.Orders with {
   );
 };
 
-// Add separate annotation for customer association to handle foreign key properly
+// Fixed customer association annotation for Orders
 annotate om.Orders:customer with @(
   Common.Label: 'Customer',
   Common.FieldControl: #Mandatory,
@@ -457,23 +443,33 @@ annotate om.Orders:customer with @(
       {
         $Type: 'Common.ValueListParameterDisplayOnly',
         ValueListProperty: 'lastName'
+      },
+      {
+        $Type: 'Common.ValueListParameterDisplayOnly',
+        ValueListProperty: 'email'
       }
     ]
-  },
-  // Remove TextArrangement to allow editing
-  Common.Text: {
-    $edmJson: {
-      $Apply: [
-        { $Path: 'customer/firstName' },
-        { $String: ' ' },
-        { $Path: 'customer/lastName' }
-      ],
-      $Function: 'odata.concat'
-    }
   }
 );
 
-// FIXED OrderItems field annotations
+// Separate annotation for customer_ID field to handle text display
+annotate om.Orders with {
+  customer_ID @(
+    Common.Text: {
+      $edmJson: {
+        $Apply: [
+          { $Path: 'customer/firstName' },
+          { $String: ' ' },
+          { $Path: 'customer/lastName' }
+        ],
+        $Function: 'odata.concat'
+      }
+    },
+    Common.TextArrangement: #TextOnly
+  );
+};
+
+// Fixed OrderItems field annotations
 annotate om.OrderItems with {
   quantity @(
     Common.Label: 'Quantity',
@@ -482,13 +478,12 @@ annotate om.OrderItems with {
   
   unitPrice @(
     Common.Label: 'Unit Price',
-    Common.FieldControl: #ReadOnly,  // Should be populated from product
+    Common.FieldControl: #ReadOnly
   );
   
   totalPrice @(
     Common.Label: 'Total Price',
-    Common.FieldControl: #ReadOnly,  // Should be calculated
-   
+    Common.FieldControl: #ReadOnly
   );
   
   notes @(
@@ -498,7 +493,7 @@ annotate om.OrderItems with {
   );
 };
 
-// Add separate annotation for product association to handle foreign key properly
+// Fixed product association annotation for OrderItems
 annotate om.OrderItems:product with @(
   Common.Label: 'Product',
   Common.FieldControl: #Mandatory,
