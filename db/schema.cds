@@ -26,20 +26,12 @@ entity Customers : cuid, managed {
   country     : String(50);
   orders      : Association to many Orders on orders.customer = $self;
 }
-type OrderStatus : String enum {
-  New;
-  Processing;
-  Shipped;
-  Delivered;
-  Cancelled;
-}
-
 @odata.draft.enabled
 entity Orders : cuid, managed {
   customer    : Association to Customers;
   items       : Composition of many OrderItems on items.order = $self;
   totalAmount : Decimal(10,2);
-  status      : OrderStatus default 'New';
+  status      : String(20) default 'New';
   orderDate   : Timestamp default $now;
   notes       : String(1000);
 }
