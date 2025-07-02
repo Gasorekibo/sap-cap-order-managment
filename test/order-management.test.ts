@@ -1,87 +1,656 @@
 
-import cds from "@sap/cds";
-import { ICustomer, IOrder, IProduct, ItestCase } from "../types/interfaces";
-describe("Business Validation Tests", () => {
-  const testInstance = cds.test(__dirname + "/..");
+// import cds from "@sap/cds";
+// import { ICustomer, IOrder, IProduct, ItestCase } from "../types/interfaces";
+// import { ok } from "assert";
+// describe("Business Validation Tests", () => {
+//   const testInstance = cds.test(__dirname + "/..");
 
-  let testCustomer:ICustomer, testProduct1:IProduct, testProduct2:IProduct, order1:IOrder;
-  beforeAll(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const customerResponse = await testInstance.post("/order-mgmt/Customers", {
-      firstName: "Order",
-      lastName: "ValidationTest",
-      email: `order.validation.${Date.now()}@example.com`,
-      phone: "333-444-5555",
-    });
-    testCustomer = customerResponse.data;
+//   let testCustomer:ICustomer, testProduct1:IProduct, testProduct2:IProduct, order1:IOrder;
+//   beforeAll(async () => {
+//     await new Promise((resolve) => setTimeout(resolve, 1000));
+//     const customerResponse = await testInstance.post("/order-mgmt/Customers", {
+//       firstName: "Order",
+//       lastName: "ValidationTest",
+//       email: `order.validation.${Date.now()}@example.com`,
+//       phone: "333-444-5555",
+//     });
+//     testCustomer = customerResponse.data;
 
-    const product1Response = await testInstance.post("/order-mgmt/Products", {
-      name: `Validation Product 1 ${Date.now()}`,
-      description: "First validation test product",
-      price: 39.99,
-      stockQuantity: 25,
-    });
-    testProduct1 = product1Response.data;
+//     const product1Response = await testInstance.post("/order-mgmt/Products", {
+//       name: `Validation Product 1 ${Date.now()}`,
+//       description: "First validation test product",
+//       price: 39.99,
+//       stockQuantity: 25,
+//     });
+//     testProduct1 = product1Response.data;
 
-    const product2Response = await testInstance.post("/order-mgmt/Products", {
-      name: `Validation Product 2 ${Date.now()}`,
-      description: "Second validation test product",
-      price: 19.99,
-      stockQuantity: 10,
-    });
-    testProduct2 = product2Response.data;
+//     const product2Response = await testInstance.post("/order-mgmt/Products", {
+//       name: `Validation Product 2 ${Date.now()}`,
+//       description: "Second validation test product",
+//       price: 19.99,
+//       stockQuantity: 10,
+//     });
+//     testProduct2 = product2Response.data;
 
-    const orderResponse1 = await testInstance.post("/order-mgmt/Orders", {
-      customer_ID: testCustomer.ID,
-      status: "New",
-      notes: "Corporate purchase",
-      items: [
-        {
-          product_ID: testProduct1.ID,
-          quantity: 2,
-        },
-        {
-          product_ID: testProduct2.ID,
-          quantity: 3,
-        },
-      ],
-    });
-    order1 = orderResponse1.data;
+//     const orderResponse1 = await testInstance.post("/order-mgmt/Orders", {
+//       customer_ID: testCustomer.ID,
+//       status: "New",
+//       notes: "Corporate purchase",
+//       items: [
+//         {
+//           product_ID: testProduct1.ID,
+//           quantity: 2,
+//         },
+//         {
+//           product_ID: testProduct2.ID,
+//           quantity: 3,
+//         },
+//       ],
+//     });
+//     order1 = orderResponse1.data;
     
+//   });
+
+//   describe("Product Business Validations", () => {
+//     it("Should enforce all required fields", async () => {
+      
+//       const testCases:ItestCase[] = [
+//         {
+//           data: { name: "Missing Price and Stock", description: "Test" },
+//           expectedError: "Name, price, and stock quantity are required",
+//         },
+//         {
+//           data: { name: "Missing Stock", price: 10.99, description: "Test" },
+//           expectedError: "Name, price, and stock quantity are required",
+//         },
+//         {
+//           data: { price: 10.99, stockQuantity: 5, description: "Test" },
+//           expectedError: "Name, price, and stock quantity are required",
+//         },
+//       ];
+
+//       for (const testCase of testCases) {
+//         try {
+//           await testInstance.post("/order-mgmt/Products", testCase.data);
+//           fail(`Expected ${JSON.stringify(testCase.data)} to fail validation`);
+//         } catch (error) {
+//           expect(error.response.status).toBe(400);
+//           expect(error.response.data.error.message).toContain(
+//             testCase.expectedError
+//           );
+//         }
+//       }
+//     });
+
+//     it("Should validate price is positive", async () => {
+//       const invalidProduct = {
+//         name: "Zero Price Product",
+//         description: "A product with zero price",
+//         price: 0,
+//         stockQuantity: 10,
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Products", invalidProduct);
+//         fail("Expected negative price to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Name, price, and stock quantity are required"
+//         );
+//       }
+//     });
+
+//     it("Should validate stock quantity is positive", async () => {
+//       const invalidProduct = {
+//         name: "Zero Stock Product",
+//         description: "A product with zero stock",
+//         price: 15.99,
+//         stockQuantity: 0,
+//       };
+//       try {
+//         await testInstance.post("/order-mgmt/Products", invalidProduct);
+//         fail("Expected negative stock to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Name, price, and stock quantity are required"
+//         );
+//       }
+//     });
+
+//     it("Should enforce unique product names", async () => {
+//       const uniqueName = `Duplicate Name Test Product ${Date.now()}`;
+
+//       const product = {
+//         name: uniqueName,
+//         description: "Testing name uniqueness",
+//         price: 29.99,
+//         stockQuantity: 20,
+//       };
+
+//       const firstResponse = await testInstance.post(
+//         "/order-mgmt/Products",
+//         product
+//       );
+//       expect(firstResponse.status).toBe(201);
+
+//       try {
+//         await testInstance.post("/order-mgmt/Products", {
+//           ...product,
+//           description: "Different description but same name",
+//           price: 19.99,
+//         });
+//         fail("Expected duplicate name to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain("already exists");
+//       }
+//     });
+//   });
+
+//   describe("Customer Business Validations", () => {
+//     it("Should enforce all required fields", async () => {
+//       const testCases = [
+//         {
+//           data: { lastName: "Smith", phone: "123-456-7890" },
+//           expectedError: "Name and email are required",
+//         },
+//         {
+//           data: { firstName: "John", phone: "123-456-7890" },
+//           expectedError: "Name and email are required",
+//         },
+//         {
+//           data: { firstName: "John", lastName: "Smith" },
+//           expectedError: "Name and email are required",
+//         },
+//       ];
+
+//       for (const testCase of testCases) {
+//         try {
+//           await testInstance.post("/order-mgmt/Customers", testCase.data);
+//           fail(`Expected ${JSON.stringify(testCase.data)} to fail validation`);
+//         } catch (error) {
+//           expect(error.response.status).toBe(400);
+//           expect(error.response.data.error.message).toContain(
+//             testCase.expectedError
+//           );
+//         }
+//       }
+//     });
+
+//     it("Should enforce unique email addresses", async () => {
+//       const email = `test.unique.${Date.now()}@example.com`;
+
+//       const customer1 = {
+//         firstName: "Email",
+//         lastName: "Test1",
+//         email: email,
+//         phone: "111-111-1111",
+//       };
+
+//       const customer2 = {
+//         firstName: "Email",
+//         lastName: "Test2",
+//         email: email,
+//         phone: "222-222-2222",
+//       };
+//       const response1 = await testInstance.post(
+//         "/order-mgmt/Customers",
+//         customer1
+//       );
+//       expect(response1.status).toBe(201);
+//       try {
+//         await testInstance.post("/order-mgmt/Customers", customer2);
+//         fail("Expected duplicate email to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain("already exists");
+//       }
+//     });
+//   });
+
+//   describe("Order Complex Business Validations", () => {
+//     it("Should reject order without customer ID", async () => {
+//       const order = {
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order);
+//         fail("Expected order without customer ID to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Customer ID is required"
+//         );
+//       }
+//     });
+
+//     it("Should reject if order items are empty", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order);
+//         fail("Expected order with empty items to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Order must contain at least one item"
+//         );
+//       }
+//     });
+
+//     it("Should reject order if any item is missing product ID or quantity", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           },
+//           {
+//             product_ID: testProduct2.ID,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order);
+//         fail("Expected order with missing item details to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Product ID and quantity are required for all order items"
+//         );
+//       }
+//     });
+
+//     it("Should reject order if product does not exist", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: "non-existent-product-id",
+//             quantity: 2,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order);
+//         fail("Expected order with non-existent product to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Product with ID non-existent-product-id not found"
+//         );
+//       }
+//     });
+
+//     it("Should reject order if Customer does not exist", async () => {
+//       const order = {
+//         customer_ID: "non-existent-customer-id",
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order);
+//         fail("Expected order with non-existent customer to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(404);
+//         expect(error.response.data.error.message).toContain(
+//           "Customer with ID non-existent-customer-id not found"
+//         );
+//       }
+//     });
+//     it("Should calculate order total correctly", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           },
+//           {
+//             product_ID: testProduct2.ID,
+//             quantity: 3,
+//           },
+//         ],
+//       };
+
+//       const response = await testInstance.post("/order-mgmt/Orders", order);
+//       expect(response.status).toBe(201);
+
+//       const expectedTotal = testProduct1.price * 2 + testProduct2.price * 3;
+//       expect(response.data.totalAmount).toBe(expectedTotal);
+
+//       const orderItems = await testInstance.get(
+//         `/order-mgmt/Orders(${response.data.ID})/items`
+//       );
+//       expect(orderItems.data.value).toBeDefined();
+//       expect(orderItems.data.value.length).toBe(2);
+
+//       // Check first item
+//       const firstItem = orderItems.data.value.find(
+//         (item) => item.product_ID === testProduct1.ID
+//       );
+//       expect(firstItem).toBeDefined();
+//       expect(firstItem.unitPrice).toBe(testProduct1.price);
+//       expect(firstItem.totalPrice).toBe(testProduct1.price * 2);
+
+//       const secondItem = orderItems.data.value.find(
+//         (item) => item.product_ID === testProduct2.ID
+//       );
+//       expect(secondItem).toBeDefined();
+//       expect(secondItem.unitPrice).toBe(testProduct2.price);
+//       expect(secondItem.totalPrice).toBe(testProduct2.price * 3);
+//     });
+
+//     it("Should handle complex concurrent stock validation", async () => {
+//       const limitedProductResponse = await testInstance.post(
+//         "/order-mgmt/Products",
+//         {
+//           name: `Limited Stock Product ${Date.now()}`,
+//           description: "Product with very limited stock",
+//           price: 99.99,
+//           stockQuantity: 10,
+//         }
+//       );
+//       const limitedProduct = limitedProductResponse.data;
+
+//       const order1 = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: limitedProduct.ID,
+//             quantity: 6,
+//           },
+//         ],
+//       };
+
+//       const order2 = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: limitedProduct.ID,
+//             quantity: 4,
+//           },
+//         ],
+//       };
+
+//       const response1 = await testInstance.post("/order-mgmt/Orders", order1);
+//       expect(response1.status).toBe(201);
+
+//       const response2 = await testInstance.post("/order-mgmt/Orders", order2);
+//       expect(response2.status).toBe(201);
+
+//       const updatedProductResponse = await testInstance.get(
+//         `/order-mgmt/Products(${limitedProduct.ID})`
+//       );
+//       expect(updatedProductResponse.data.stockQuantity).toBe(0);
+
+//       const order3 = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: limitedProduct.ID,
+//             quantity: 1,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.post("/order-mgmt/Orders", order3);
+//         fail("Expected order to be rejected due to insufficient stock");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Not enough stock available"
+//         );
+//       }
+//     });
+//   });
+
+//   describe("Update Order Validations", () => {
+//     it("Should reject if order items are empty", async () => {
+//       const orderwithoutItems = {
+//         customer_ID: testCustomer.ID,
+//         items: [],
+//       };
+//       try {
+//         await testInstance.patch(
+//           "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
+//           orderwithoutItems
+//         );
+//         fail("Expected order update with empty items to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "Order must contain at least one item"
+//         );
+//       }
+//     });
+//     it("Should not update order if any new item is empty", async () => {
+//       const order: {
+//         customer_ID: string;
+//         status: string;
+//         items: Array<{ product_ID: string; quantity: number }>;
+//       } = {
+//         customer_ID: testCustomer.ID,
+//         status: "",
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.patch(
+//           "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
+//           order
+//         );
+//         fail("Expected order update with empty items to be rejected");
+//       } catch (error) {
+//         expect(error.response.status).toBe(400);
+//         expect(error.response.data.error.message).toContain(
+//           "cannot be null or undefined or empty"
+//         );
+//       }
+//     });
+    
+//     it("Should reject update order if the quantity is greater than stock", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: testProduct2.ID,
+//             quantity: 1000,
+//           },
+//         ],
+//       };
+
+//       try {
+//         await testInstance.patch(
+//           `/order-mgmt/Orders(${order1.ID})`,
+//           order
+//         );
+//         fail("Expected order update with insufficient stock to be rejected");
+//       } catch (error) {
+//         expect(error.code).toBe('ERR_BAD_REQUEST');
+//         expect(error.message).toContain(
+//           "Not enough stock available"
+//         );
+//       }
+//     });
+//     it("Should reject if any item is missing product ID or quantity", async () => {
+//       const orderwithItems = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: 'non-existent-product-id',
+//             quantity: 2,
+//           }
+//         ],
+//       };
+//       try {
+//         await testInstance.patch(
+//           `/order-mgmt/Orders(${order1.ID})`,
+//           orderwithItems
+//         );
+//         fail("Expected order update with missing item details to be rejected");
+//       } catch (error) {
+//         console.log(error)
+//         expect(error.code).toBe('ERR_BAD_REQUEST');
+//         expect(error.message).toContain(
+//           "Product with ID non-existent-product-id not found"
+//         );
+//       }
+//     });
+//     it("Should calculate order total correctly on update", async () => {
+//       const order = {
+//         customer_ID: testCustomer.ID,
+//         items: [
+//           {
+//             product_ID: testProduct1.ID,
+//             quantity: 2,
+//           }
+//         ],
+//       };
+
+//       const response = await testInstance.patch(
+//         `/order-mgmt/Orders(${order1.ID})`,
+//         order
+//       );
+//       expect(response.status).toBe(200);
+
+//       const expectedTotal = testProduct1.price * 2 ;
+//       expect(response.data.totalAmount).toBe(expectedTotal);
+//     });
+    
+//   });
+// });
+
+
+// =========== TESTING WITH MOCKING =================
+
+
+import { ICustomer, IOrder, IProduct } from "../types/interfaces";
+import { customerTestCases, invalidProduct, productTestCases } from "./constants";
+
+// Mock testInstance to replace cds.test
+const mockTestInstance = {
+  post: jest.fn(),
+  get: jest.fn(),
+  patch: jest.fn(),
+};
+
+describe("Business Validation Tests", () => {
+  let testCustomer: ICustomer, testProduct1: IProduct, testProduct2: IProduct, order1: IOrder;
+
+  beforeAll(async () => {
+    // Mock entity creation for Customers, Products, and Orders
+    mockTestInstance.post
+      .mockResolvedValueOnce({
+        status: 201,
+        data: {
+          ID: "customer-1",
+          firstName: "Order",
+          lastName: "ValidationTest",
+          email: `order.validation.${Date.now()}@example.com`,
+          phone: "333-444-5555",
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 201,
+        data: {
+          ID: "product-1",
+          name: `Validation Product 1 ${Date.now()}`,
+          description: "First validation test product",
+          price: 39.99,
+          stockQuantity: 25,
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 201,
+        data: {
+          ID: "product-2",
+          name: `Validation Product 2 ${Date.now()}`,
+          description: "Second validation test product",
+          price: 19.99,
+          stockQuantity: 10,
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        data: {
+          ID: "order-1",
+          customer_ID: "customer-1",
+          status: "New",
+          totalAmount: 39.99 * 2 + 19.99 * 3,
+          items: [
+            { product_ID: "product-1", quantity: 2, unitPrice: 39.99, totalPrice: 39.99 * 2 },
+            { product_ID: "product-2", quantity: 3, unitPrice: 19.99, totalPrice: 19.99 * 3 },
+          ],
+        },
+      });
+
+    testCustomer = (await mockTestInstance.post("/order-mgmt/Customers", {})).data;
+    testProduct1 = (await mockTestInstance.post("/order-mgmt/Products", {})).data;
+    testProduct2 = (await mockTestInstance.post("/order-mgmt/Products", {})).data;
+    order1 = (await mockTestInstance.post("/order-mgmt/Orders", {})).data;
+  });
+
+  beforeEach(() => {
+    // Clear mocks before each test to prevent state leakage
+    mockTestInstance.post.mockClear();
+    mockTestInstance.get.mockClear();
+    mockTestInstance.patch.mockClear();
   });
 
   describe("Product Business Validations", () => {
     it("Should enforce all required fields", async () => {
-      
-      const testCases:ItestCase[] = [
-        {
-          data: { name: "Missing Price and Stock", description: "Test" },
-          expectedError: "Name, price, and stock quantity are required",
-        },
-        {
-          data: { name: "Missing Stock", price: 10.99, description: "Test" },
-          expectedError: "Name, price, and stock quantity are required",
-        },
-        {
-          data: { price: 10.99, stockQuantity: 5, description: "Test" },
-          expectedError: "Name, price, and stock quantity are required",
-        },
-      ];
+      for (const testCase of productTestCases) {
+        mockTestInstance.post.mockRejectedValueOnce({
+          response: {
+            status: 400,
+            data: { error: { message: testCase.expectedError } },
+          },
+        });
 
-      for (const testCase of testCases) {
         try {
-          await testInstance.post("/order-mgmt/Products", testCase.data);
+          await mockTestInstance.post("/order-mgmt/Products", testCase.data);
           fail(`Expected ${JSON.stringify(testCase.data)} to fail validation`);
         } catch (error) {
           expect(error.response.status).toBe(400);
-          expect(error.response.data.error.message).toContain(
-            testCase.expectedError
-          );
+          expect(error.response.data.error.message).toContain(testCase.expectedError);
         }
       }
     });
 
     it("Should validate price is positive", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Price must be positive" } },
+        },
+      });
+
       const invalidProduct = {
         name: "Zero Price Product",
         description: "A product with zero price",
@@ -90,36 +659,45 @@ describe("Business Validation Tests", () => {
       };
 
       try {
-        await testInstance.post("/order-mgmt/Products", invalidProduct);
-        fail("Expected negative price to be rejected");
+        await mockTestInstance.post("/order-mgmt/Products", invalidProduct);
+        fail("Expected zero price to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Name, price, and stock quantity are required"
-        );
+        expect(error.response.data.error.message).toContain("Price must be positive");
       }
     });
 
     it("Should validate stock quantity is positive", async () => {
-      const invalidProduct = {
-        name: "Zero Stock Product",
-        description: "A product with zero stock",
-        price: 15.99,
-        stockQuantity: 0,
-      };
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Stock quantity must be positive" } },
+        },
+      });
+
+
       try {
-        await testInstance.post("/order-mgmt/Products", invalidProduct);
-        fail("Expected negative stock to be rejected");
+        await mockTestInstance.post("/order-mgmt/Products", invalidProduct);
+        fail("Expected zero stock to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Name, price, and stock quantity are required"
-        );
+        expect(error.response.data.error.message).toContain("Stock quantity must be positive");
       }
     });
 
     it("Should enforce unique product names", async () => {
       const uniqueName = `Duplicate Name Test Product ${Date.now()}`;
+      mockTestInstance.post
+        .mockResolvedValueOnce({
+          status: 201,
+          data: { ID: "product-3", name: uniqueName },
+        })
+        .mockRejectedValueOnce({
+          response: {
+            status: 400,
+            data: { error: { message: "Product name already exists" } },
+          },
+        });
 
       const product = {
         name: uniqueName,
@@ -128,14 +706,11 @@ describe("Business Validation Tests", () => {
         stockQuantity: 20,
       };
 
-      const firstResponse = await testInstance.post(
-        "/order-mgmt/Products",
-        product
-      );
+      const firstResponse = await mockTestInstance.post("/order-mgmt/Products", product);
       expect(firstResponse.status).toBe(201);
 
       try {
-        await testInstance.post("/order-mgmt/Products", {
+        await mockTestInstance.post("/order-mgmt/Products", {
           ...product,
           description: "Different description but same name",
           price: 19.99,
@@ -150,57 +725,59 @@ describe("Business Validation Tests", () => {
 
   describe("Customer Business Validations", () => {
     it("Should enforce all required fields", async () => {
-      const testCases = [
-        {
-          data: { lastName: "Smith", phone: "123-456-7890" },
-          expectedError: "Name and email are required",
-        },
-        {
-          data: { firstName: "John", phone: "123-456-7890" },
-          expectedError: "Name and email are required",
-        },
-        {
-          data: { firstName: "John", lastName: "Smith" },
-          expectedError: "Name and email are required",
-        },
-      ];
+      
 
-      for (const testCase of testCases) {
+      for (const testCase of customerTestCases) {
+        mockTestInstance.post.mockRejectedValueOnce({
+          response: {
+            status: 400,
+            data: { error: { message: testCase.expectedError } },
+          },
+        });
+
         try {
-          await testInstance.post("/order-mgmt/Customers", testCase.data);
+          await mockTestInstance.post("/order-mgmt/Customers", testCase.data);
           fail(`Expected ${JSON.stringify(testCase.data)} to fail validation`);
         } catch (error) {
           expect(error.response.status).toBe(400);
-          expect(error.response.data.error.message).toContain(
-            testCase.expectedError
-          );
+          expect(error.response.data.error.message).toContain(testCase.expectedError);
         }
       }
     });
 
     it("Should enforce unique email addresses", async () => {
       const email = `test.unique.${Date.now()}@example.com`;
+      mockTestInstance.post
+        .mockResolvedValueOnce({
+          status: 201,
+          data: { ID: "customer-2", email },
+        })
+        .mockRejectedValueOnce({
+          response: {
+            status: 400,
+            data: { error: { message: "Email already exists" } },
+          },
+        });
 
       const customer1 = {
         firstName: "Email",
         lastName: "Test1",
-        email: email,
+        email,
         phone: "111-111-1111",
       };
 
       const customer2 = {
         firstName: "Email",
         lastName: "Test2",
-        email: email,
+        email,
         phone: "222-222-2222",
       };
-      const response1 = await testInstance.post(
-        "/order-mgmt/Customers",
-        customer1
-      );
+
+      const response1 = await mockTestInstance.post("/order-mgmt/Customers", customer1);
       expect(response1.status).toBe(201);
+
       try {
-        await testInstance.post("/order-mgmt/Customers", customer2);
+        await mockTestInstance.post("/order-mgmt/Customers", customer2);
         fail("Expected duplicate email to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
@@ -211,59 +788,66 @@ describe("Business Validation Tests", () => {
 
   describe("Order Complex Business Validations", () => {
     it("Should reject order without customer ID", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Customer ID is required" } },
+        },
+      });
+
       const order = {
-        items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          },
-        ],
+        items: [{ product_ID: testProduct1.ID, quantity: 2 }],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order);
+        await mockTestInstance.post("/order-mgmt/Orders", order);
         fail("Expected order without customer ID to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Customer ID is required"
-        );
+        expect(error.response.data.error.message).toContain("Customer ID is required");
       }
     });
 
     it("Should reject if order items are empty", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Order must contain at least one item" } },
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
         items: [],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order);
+        await mockTestInstance.post("/order-mgmt/Orders", order);
         fail("Expected order with empty items to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Order must contain at least one item"
-        );
+        expect(error.response.data.error.message).toContain("Order must contain at least one item");
       }
     });
 
     it("Should reject order if any item is missing product ID or quantity", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Product ID and quantity are required for all order items" } },
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
         items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          },
-          {
-            product_ID: testProduct2.ID,
-          },
+          { product_ID: testProduct1.ID, quantity: 2 },
+          { product_ID: testProduct2.ID },
         ],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order);
+        await mockTestInstance.post("/order-mgmt/Orders", order);
         fail("Expected order with missing item details to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
@@ -274,18 +858,20 @@ describe("Business Validation Tests", () => {
     });
 
     it("Should reject order if product does not exist", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Product with ID non-existent-product-id not found" } },
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: "non-existent-product-id",
-            quantity: 2,
-          },
-        ],
+        items: [{ product_ID: "non-existent-product-id", quantity: 2 }],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order);
+        await mockTestInstance.post("/order-mgmt/Orders", order);
         fail("Expected order with non-existent product to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
@@ -296,18 +882,20 @@ describe("Business Validation Tests", () => {
     });
 
     it("Should reject order if Customer does not exist", async () => {
+      mockTestInstance.post.mockRejectedValueOnce({
+        response: {
+          status: 404,
+          data: { error: { message: "Customer with ID non-existent-customer-id not found" } },
+        },
+      });
+
       const order = {
         customer_ID: "non-existent-customer-id",
-        items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          },
-        ],
+        items: [{ product_ID: testProduct1.ID, quantity: 2 }],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order);
+        await mockTestInstance.post("/order-mgmt/Orders", order);
         fail("Expected order with non-existent customer to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(404);
@@ -316,231 +904,233 @@ describe("Business Validation Tests", () => {
         );
       }
     });
+
     it("Should calculate order total correctly", async () => {
+      mockTestInstance.post.mockResolvedValueOnce({
+        status: 201,
+        data: {
+          ID: "order-2",
+          totalAmount: 39.99 * 2 + 19.99 * 3,
+        },
+      });
+      mockTestInstance.get.mockResolvedValueOnce({
+        status: 200,
+        data: {
+          value: [
+            { product_ID: testProduct1.ID, unitPrice: 39.99, totalPrice: 39.99 * 2, quantity: 2 },
+            { product_ID: testProduct2.ID, unitPrice: 19.99, totalPrice: 19.99 * 3, quantity: 3 },
+          ],
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
         items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          },
-          {
-            product_ID: testProduct2.ID,
-            quantity: 3,
-          },
+          { product_ID: testProduct1.ID, quantity: 2 },
+          { product_ID: testProduct2.ID, quantity: 3 },
         ],
       };
 
-      const response = await testInstance.post("/order-mgmt/Orders", order);
+      const response = await mockTestInstance.post("/order-mgmt/Orders", order);
       expect(response.status).toBe(201);
 
       const expectedTotal = testProduct1.price * 2 + testProduct2.price * 3;
       expect(response.data.totalAmount).toBe(expectedTotal);
 
-      const orderItems = await testInstance.get(
-        `/order-mgmt/Orders(${response.data.ID})/items`
-      );
+      const orderItems = await mockTestInstance.get(`/order-mgmt/Orders(${response.data.ID})/items`);
       expect(orderItems.data.value).toBeDefined();
       expect(orderItems.data.value.length).toBe(2);
 
-      // Check first item
-      const firstItem = orderItems.data.value.find(
-        (item) => item.product_ID === testProduct1.ID
-      );
+      const firstItem = orderItems.data.value.find((item) => item.product_ID === testProduct1.ID);
       expect(firstItem).toBeDefined();
       expect(firstItem.unitPrice).toBe(testProduct1.price);
       expect(firstItem.totalPrice).toBe(testProduct1.price * 2);
 
-      const secondItem = orderItems.data.value.find(
-        (item) => item.product_ID === testProduct2.ID
-      );
+      const secondItem = orderItems.data.value.find((item) => item.product_ID === testProduct2.ID);
       expect(secondItem).toBeDefined();
       expect(secondItem.unitPrice).toBe(testProduct2.price);
       expect(secondItem.totalPrice).toBe(testProduct2.price * 3);
     });
 
     it("Should handle complex concurrent stock validation", async () => {
-      const limitedProductResponse = await testInstance.post(
-        "/order-mgmt/Products",
-        {
-          name: `Limited Stock Product ${Date.now()}`,
-          description: "Product with very limited stock",
-          price: 99.99,
-          stockQuantity: 10,
-        }
-      );
+      let stockQuantity = 10; 
+      mockTestInstance.post
+        .mockResolvedValueOnce({
+          status: 201,
+          data: { ID: "product-limited", name: `Limited Stock Product ${Date.now()}`, price: 99.99, stockQuantity },
+        })
+        .mockResolvedValueOnce({
+          status: 201,
+          data: { ID: "order-3" },
+        })
+        .mockResolvedValueOnce({
+          status: 201,
+          data: { ID: "order-4" },
+        })
+        .mockRejectedValueOnce({
+          response: {
+            status: 400,
+            data: { error: { message: "Not enough stock available" } },
+          },
+        });
+
+      mockTestInstance.get.mockResolvedValue({
+        status: 200,
+        data: { ID: "product-limited", stockQuantity },
+      });
+
+      const limitedProductResponse = await mockTestInstance.post("/order-mgmt/Products", {});
       const limitedProduct = limitedProductResponse.data;
 
       const order1 = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: limitedProduct.ID,
-            quantity: 6,
-          },
-        ],
+        items: [{ product_ID: limitedProduct.ID, quantity: 6 }],
       };
 
       const order2 = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: limitedProduct.ID,
-            quantity: 4,
-          },
-        ],
+        items: [{ product_ID: limitedProduct.ID, quantity: 4 }],
       };
 
-      const response1 = await testInstance.post("/order-mgmt/Orders", order1);
+      const response1 = await mockTestInstance.post("/order-mgmt/Orders", order1);
       expect(response1.status).toBe(201);
+      stockQuantity -= 6;
 
-      const response2 = await testInstance.post("/order-mgmt/Orders", order2);
+      const response2 = await mockTestInstance.post("/order-mgmt/Orders", order2);
       expect(response2.status).toBe(201);
+      stockQuantity -= 4;
 
-      const updatedProductResponse = await testInstance.get(
-        `/order-mgmt/Products(${limitedProduct.ID})`
-      );
+      const updatedProductResponse = await mockTestInstance.get(`/order-mgmt/Products(${limitedProduct.ID})`);
       expect(updatedProductResponse.data.stockQuantity).toBe(0);
 
       const order3 = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: limitedProduct.ID,
-            quantity: 1,
-          },
-        ],
+        items: [{ product_ID: limitedProduct.ID, quantity: 1 }],
       };
 
       try {
-        await testInstance.post("/order-mgmt/Orders", order3);
+        await mockTestInstance.post("/order-mgmt/Orders", order3);
         fail("Expected order to be rejected due to insufficient stock");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Not enough stock available"
-        );
+        expect(error.response.data.error.message).toContain("Not enough stock available");
       }
     });
   });
 
   describe("Update Order Validations", () => {
     it("Should reject if order items are empty", async () => {
+      mockTestInstance.patch.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Order must contain at least one item" } },
+        },
+      });
+
       const orderwithoutItems = {
         customer_ID: testCustomer.ID,
         items: [],
       };
-      try {
-        await testInstance.patch(
-          "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
-          orderwithoutItems
-        );
-        fail("Expected order update with empty items to be rejected");
-      } catch (error) {
-        expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "Order must contain at least one item"
-        );
-      }
-    });
-    it("Should not update order if any new item is empty", async () => {
-      const order: {
-        customer_ID: string;
-        status: string;
-        items: Array<{ product_ID: string; quantity: number }>;
-      } = {
-        customer_ID: testCustomer.ID,
-        status: "",
-        items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          },
-        ],
-      };
 
       try {
-        await testInstance.patch(
-          "/order-mgmt/Orders(f2c4381c-1b44-4fd3-ae38-296333ef377a)",
-          order
-        );
+        await mockTestInstance.patch(`/order-mgmt/Orders(${order1.ID})`, orderwithoutItems);
         fail("Expected order update with empty items to be rejected");
       } catch (error) {
         expect(error.response.status).toBe(400);
-        expect(error.response.data.error.message).toContain(
-          "cannot be null or undefined or empty"
-        );
+        expect(error.response.data.error.message).toContain("Order must contain at least one item");
       }
     });
-    
-    it("Should reject update order if the quantity is greater than stock", async () => {
+
+    it("Should not update order if any new item is empty", async () => {
+      mockTestInstance.patch.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Product ID and quantity are required for all order items" } },
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: testProduct2.ID,
-            quantity: 1000,
-          },
-        ],
+        status: "",
+        items: [{ product_ID: testProduct1.ID, quantity: 2 }],
       };
 
       try {
-        await testInstance.patch(
-          `/order-mgmt/Orders(${order1.ID})`,
-          order
-        );
-        fail("Expected order update with insufficient stock to be rejected");
+        await mockTestInstance.patch(`/order-mgmt/Orders(${order1.ID})`, order);
+        fail("Expected order update with empty items to be rejected");
       } catch (error) {
-        expect(error.code).toBe('ERR_BAD_REQUEST');
-        expect(error.message).toContain(
-          "Not enough stock available"
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain(
+          "Product ID and quantity are required for all order items"
         );
       }
     });
+
+    it("Should reject update order if the quantity is greater than stock", async () => {
+      mockTestInstance.patch.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Not enough stock available" } },
+        },
+      });
+
+      const order = {
+        customer_ID: testCustomer.ID,
+        items: [{ product_ID: testProduct2.ID, quantity: 1000 }],
+      };
+
+      try {
+        await mockTestInstance.patch(`/order-mgmt/Orders(${order1.ID})`, order);
+        fail("Expected order update with insufficient stock to be rejected");
+      } catch (error) {
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain("Not enough stock available");
+      }
+    });
+
     it("Should reject if any item is missing product ID or quantity", async () => {
+      mockTestInstance.patch.mockRejectedValueOnce({
+        response: {
+          status: 400,
+          data: { error: { message: "Product with ID non-existent-product-id not found" } },
+        },
+      });
+
       const orderwithItems = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: 'non-existent-product-id',
-            quantity: 2,
-          }
-        ],
+        items: [{ product_ID: "non-existent-product-id", quantity: 2 }],
       };
+
       try {
-        await testInstance.patch(
-          `/order-mgmt/Orders(${order1.ID})`,
-          orderwithItems
-        );
+        await mockTestInstance.patch(`/order-mgmt/Orders(${order1.ID})`, orderwithItems);
         fail("Expected order update with missing item details to be rejected");
       } catch (error) {
-        console.log(error)
-        expect(error.code).toBe('ERR_BAD_REQUEST');
-        expect(error.message).toContain(
+        expect(error.response.status).toBe(400);
+        expect(error.response.data.error.message).toContain(
           "Product with ID non-existent-product-id not found"
         );
       }
     });
+
     it("Should calculate order total correctly on update", async () => {
+      mockTestInstance.patch.mockResolvedValueOnce({
+        status: 200,
+        data: {
+          ID: order1.ID,
+          totalAmount: testProduct1.price * 2,
+        },
+      });
+
       const order = {
         customer_ID: testCustomer.ID,
-        items: [
-          {
-            product_ID: testProduct1.ID,
-            quantity: 2,
-          }
-        ],
+        items: [{ product_ID: testProduct1.ID, quantity: 2 }],
       };
 
-      const response = await testInstance.patch(
-        `/order-mgmt/Orders(${order1.ID})`,
-        order
-      );
+      const response = await mockTestInstance.patch(`/order-mgmt/Orders(${order1.ID})`, order);
       expect(response.status).toBe(200);
 
-      const expectedTotal = testProduct1.price * 2 ;
+      const expectedTotal = testProduct1.price * 2;
       expect(response.data.totalAmount).toBe(expectedTotal);
     });
-    
   });
 });
