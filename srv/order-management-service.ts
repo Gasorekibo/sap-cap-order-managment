@@ -2,8 +2,11 @@ import cds, { update } from "@sap/cds";
 const { SELECT, UPDATE } = cds.ql;
 import { Request } from "@sap/cds";
 export default async function (srv) {
+  console.log("Order Management Service is running...");
   const { Orders, Products, Customers, OrderItems } = srv.entities;
   const i18n =  cds.i18n.labels
+
+  
   srv.before("CREATE", Products, async (req: Request) => {
     if (!req.data.name || !req.data.price || !req.data.stockQuantity) {
       req.error(
@@ -11,11 +14,12 @@ export default async function (srv) {
       );
       return;
     }
-    const existingProduct = await srv
-      .tx(req)
-      .run(SELECT.one.from(Products).where({ name: req.data.name }));
-    if (existingProduct) {
-      req.error(400, i18n.at('product.exists', [req.data.name ]));
+    if (req.data.price <= 0) {
+      req.error(400, i18n.at('product.positive.price'));
+      return;
+    }
+    if(req.data.stockQuantity <= 0) {
+      req.error(400, i18n.at('product.positive.stock'));
       return;
     }
   });

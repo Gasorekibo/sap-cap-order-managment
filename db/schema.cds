@@ -2,19 +2,19 @@ namespace com.moyo.ordermanagement;
 
 using { Currency, managed, cuid } from '@sap/cds/common';
 
-@odata.draft.enabled
+//@odata.draft.enabled
 entity Products : cuid, managed {
-  name        : String(100) not null @assert.unique;
+  name        : String(100);
   description : String(1000);
-  price       : Decimal(10,2) not null;
+  price       : Decimal(10,2);
   currency    : Currency;
-  stockQuantity : Integer not null;
+  stockQuantity : Integer;
   unit        : String(20);
   category    : String(50);
   supplier    : String(100);
   orderItems  : Association to many OrderItems on orderItems.product = $self;
 }
-@odata.draft.enabled
+//@odata.draft.enabled
 entity Customers : cuid, managed {
   firstName   : String(50) not null;
   lastName    : String(50) not null;
@@ -26,7 +26,7 @@ entity Customers : cuid, managed {
   country     : String(50);
   orders      : Association to many Orders on orders.customer = $self;
 }
-@odata.draft.enabled
+//@odata.draft.enabled
 entity Orders : cuid, managed {
   customer    : Association to Customers;
   items       : Composition of many OrderItems on items.order = $self;
@@ -45,25 +45,25 @@ entity OrderItems : cuid {
   notes       : String(1000);
 }
 
-annotate Products with @(
-    restrict: [
-        { grant: 'READ', to: ['admin', 'authenticated-user'] },
-        { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
-    ]
-);
+// annotate Products with @(
+//     restrict: [
+//         { grant: 'READ', to: ['admin', 'authenticated-user'] },
+//         { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'admin' }
+//     ]
+// );
 
-annotate Customers with @(
-    restrict: [
-        { grant: 'READ', to: ['admin', 'authenticated-user'] },
-        { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
-        { grant: ['DELETE', 'READ'], to: 'admin' }
-    ]
-);
+// annotate Customers with @(
+//     restrict: [
+//         { grant: 'READ', to: ['admin', 'authenticated-user'] },
+//         { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
+//         { grant: ['DELETE', 'READ'], to: 'admin' }
+//     ]
+// );
 
-annotate Orders with @(
-    restrict: [
-        { grant: 'READ', to: ['admin', 'authenticated-user'] },
-        { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
-        { grant: 'DELETE', to: 'admin' }
-    ]
-);
+// annotate Orders with @(
+//     restrict: [
+//         { grant: 'READ', to: ['admin', 'authenticated-user'] },
+//         { grant: ['CREATE', 'UPDATE'], to: 'authenticated-user' },
+//         { grant: 'DELETE', to: 'admin' }
+//     ]
+// );

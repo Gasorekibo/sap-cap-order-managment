@@ -52,24 +52,7 @@
     "requires": {
       "db": {
         "kind": "sqlite",
-        "credentials": {
-          "database": "db/my.db"
-        }
-      },
-      "build": {
-        "target": "dist"
-      },
-      "ts": true,
-      "[hybrid]": {
-        "db": {
-          "kind": "hana"
-        }
-      },
-      "[production]": {
-        "db": {
-          "kind": "hana"
-        },
-        "auth": "xsuaa"
+       "credentials": { "url": "db.sqlite" }
       }
     },
     "sql": {
