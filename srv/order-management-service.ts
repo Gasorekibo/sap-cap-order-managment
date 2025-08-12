@@ -33,7 +33,7 @@ export default async function (srv) {
       .tx(req)
       .run(SELECT.one.from(Customers).where({ email: req.data.email }));
     if (existingCustomer) {
-      req.error(400, i18n.at('customer.exists', [req.data.email]));
+      req.error(409, i18n.at('customer.exists', [req.data.email]));
       return;
     }
   });

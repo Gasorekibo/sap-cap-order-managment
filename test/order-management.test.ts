@@ -81,7 +81,7 @@ describe("Business Validation Tests", () => {
       });
       it("Should return 404 for non-existent product ID", async () => {
         try {
-          await testInstance.get("/order-mgmt/Products(839fsekkd3038dalfja)");
+          await testInstance.get("/order-mgmt/Products(118a4e55-4bd5-47f3-a227-9af508cf4889)");
           fail("Expected 404 for non-existent product ID");
         } catch (error) {
           expect(error.response.status).toBe(404);
@@ -298,7 +298,7 @@ describe("Business Validation Tests", () => {
       });
       it("Should return 404 for non-existent customer ID", async () => {
         try {
-          await testInstance.get("/order-mgmt/Customers(839fsekkd3038dalfja)");
+          await testInstance.get("/order-mgmt/Customers(118a4e55-4bd5-47f3-a227-9af508cf4889)");
           fail("Expected 404 for non-existent customer ID");
         } catch (error) {
           expect(error.response.status).toBe(404);
@@ -335,7 +335,7 @@ describe("Business Validation Tests", () => {
           );
           fail("Expected customer with existing email to be rejected");
         } catch (error) {
-          expect(error.response.status).toBe(400);
+          expect(error.response.status).toBe(409);
           expect(error.response.data.error.message).toContain("already exists");
         }
       });
@@ -608,7 +608,6 @@ describe("Business Validation Tests", () => {
         };
 
         const response1 = await testInstance.post("/order-mgmt/Orders", order1);
-        console.log("Order 1 Response:===============>", response1.data);
         expect(response1.status).toBe(201);
         expect(response1.data.customer_ID).toBe(testCustomer.ID);
         expect(response1.data.items.length).toBe(1);
@@ -805,7 +804,7 @@ describe("Business Validation Tests", () => {
       });
       it("Should return 404 for non-existent order ID", async () => {
         try {
-          await testInstance.get("/order-mgmt/Orders(839fsekkd3038dalfja)");
+          await testInstance.get("/order-mgmt/Orders(118a4e55-4bd5-47f3-a227-9af508cf4889)");
           fail("Expected 404 for non-existent order ID");
         } catch (error) {
           expect(error.response.status).toBe(404);
