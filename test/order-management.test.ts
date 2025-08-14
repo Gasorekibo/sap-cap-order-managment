@@ -10,7 +10,7 @@ describe("Business Validation Tests", () => {
   let productToDelete: IProduct;
   let orderToDelete: IOrder;
   beforeAll(async () => {
-    const customerResponse = await testInstance.post("/order-mgmt/Customers", {
+    const customerResponse = await testInstance.post("/order-mgmt/Customers.", {
       firstName: "Mupenzi",
       lastName: "Jackson",
       email: `jackson12@gmail.com`,
